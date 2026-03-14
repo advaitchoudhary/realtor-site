@@ -23,12 +23,24 @@ const DEFAULT_FILTERS: SearchFilters = {
   limit: 18,
 };
 
+function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
 export default function ListingsClient() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const ddfQuery = searchParams.get("search") ?? "";
   const cityParam = searchParams.get("city") ?? siteConfig.api.defaultCity;
   const listingType = searchParams.get("type") ?? "Sale";
+  const nearLat = parseFloat(searchParams.get("lat") ?? "");
+  const nearLng = parseFloat(searchParams.get("lng") ?? "");
+  const nearLabel = searchParams.get("near") ?? "";
+  const hasProximity = !isNaN(nearLat) && !isNaN(nearLng);
 
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
@@ -88,7 +100,14 @@ export default function ListingsClient() {
           }),
         });
         const data = await res.json();
-        setListings(data.listings ?? []);
+        let results: Listing[] = data.listings ?? [];
+        if (hasProximity && results.length > 0) {
+          results = [...results].sort((a, b) =>
+            haversineKm(nearLat, nearLng, a.Latitude, a.Longitude) -
+            haversineKm(nearLat, nearLng, b.Latitude, b.Longitude)
+          );
+        }
+        setListings(results);
         setTotal(data.total ?? 0);
         setDdfError(null);
       }
@@ -125,6 +144,8 @@ export default function ListingsClient() {
 
   const headerLabel = isDdfMode
     ? (loading ? "Searching…" : `${total} Properties matching "${ddfQuery}"`)
+    : hasProximity
+    ? (loading ? "Searching…" : `${total} Properties near "${nearLabel || cityParam}"`)
     : (loading ? "Searching…" : `${total} Properties in ${cityParam}`);
 
   return (

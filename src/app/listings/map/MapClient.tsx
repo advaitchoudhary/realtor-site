@@ -2,13 +2,15 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useSearchParams } from "next/navigation";
-import { GoogleMap, useJsApiLoader, MarkerF, InfoWindowF } from "@react-google-maps/api";
+import { GoogleMap, useJsApiLoader, MarkerF, InfoWindowF, Autocomplete } from "@react-google-maps/api";
 import { Listing, SearchFilters } from "@/lib/types";
 import { formatPrice } from "@/lib/utils";
 import { siteConfig } from "@/lib/config";
 import { MapPin, Search, ArrowLeft, Bed, Bath, MapPinned } from "lucide-react";
 import Link from "next/link";
 import ListingCard from "@/components/listings/ListingCard";
+
+const LIBRARIES: ("places")[] = ["places"];
 
 function MapView({
   listings,
@@ -17,6 +19,8 @@ function MapView({
   selectedPin,
   setSelectedPin,
   mapRef,
+  isLoaded,
+  loadError,
 }: {
   listings: Listing[];
   hoveredId: string | null;
@@ -24,12 +28,9 @@ function MapView({
   selectedPin: Listing | null;
   setSelectedPin: (l: Listing | null) => void;
   mapRef: React.MutableRefObject<google.maps.Map | null>;
+  isLoaded: boolean;
+  loadError: Error | undefined;
 }) {
-  const mapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY ?? "";
-  const { isLoaded, loadError } = useJsApiLoader({
-    googleMapsApiKey: mapsKey,
-    libraries: ["places"],
-  });
   const center = { lat: siteConfig.api.defaultLat, lng: siteConfig.api.defaultLng };
   const onMapLoad = useCallback((map: google.maps.Map) => { mapRef.current = map; }, [mapRef]);
 
@@ -58,14 +59,6 @@ function MapView({
         <p className="text-sm text-gray-500 max-w-md mb-4">
           ApiProjectMapError usually means: (1) Add <code className="bg-gray-200 px-1 rounded">NEXT_PUBLIC_GOOGLE_MAPS_KEY</code> to .env.local, (2) Enable &quot;Maps JavaScript API&quot; in Google Cloud Console, (3) Enable billing on your project.
         </p>
-        <a
-          href="https://developers.google.com/maps/documentation/javascript/error-messages#api-project-map-error"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-sm text-[var(--primary)] hover:underline"
-        >
-          Troubleshooting guide →
-        </a>
       </div>
     );
   }
@@ -148,11 +141,15 @@ export default function MapClient() {
   const [selectedPin, setSelectedPin] = useState<Listing | null>(null);
   const [searchInput, setSearchInput] = useState("");
   const mapRef = useRef<google.maps.Map | null>(null);
+  const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
 
   const mapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY ?? "";
   const hasMapsKey = !!mapsKey.trim();
 
-  const center = { lat: siteConfig.api.defaultLat, lng: siteConfig.api.defaultLng };
+  const { isLoaded, loadError } = useJsApiLoader({
+    googleMapsApiKey: mapsKey,
+    libraries: LIBRARIES,
+  });
 
   useEffect(() => {
     fetchListings();
@@ -195,11 +192,34 @@ export default function MapClient() {
     }
   }
 
+  function onPlaceChanged() {
+    const place = autocompleteRef.current?.getPlace();
+    if (!place) return;
+
+    // Pan map to selected location
+    if (place.geometry?.location && mapRef.current) {
+      const lat = place.geometry.location.lat();
+      const lng = place.geometry.location.lng();
+      mapRef.current.panTo({ lat, lng });
+      mapRef.current.setZoom(14);
+    }
+
+    // Extract city and update search filter using city-based Incom API
+    const city = place.address_components?.find((c) => c.types.includes("locality"))?.long_name
+      ?? place.address_components?.find((c) => c.types.includes("sublocality"))?.long_name
+      ?? place.name
+      ?? "";
+    if (city) {
+      const searchByText = `${city}, ON, Canada`;
+      setFilters((f) => ({ ...f, searchByText }));
+      setSearchInput(city);
+    }
+  }
+
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
     if (searchInput.trim()) {
-      setFilters((f) => ({ ...f, searchByText: `${searchInput.trim()}, ON, Canada` }));
-      setSearchInput("");
+      setFilters((f) => ({ ...f, searchByText: searchInput.trim() }));
     }
   }
 
@@ -211,9 +231,30 @@ export default function MapClient() {
         </Link>
         <form onSubmit={handleSearch} className="flex-1 min-w-0 flex items-center gap-2 max-w-lg">
           <div className="relative flex-1">
-            <MapPin size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input type="text" placeholder={filters.searchByText} value={searchInput} onChange={(e) => setSearchInput(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 text-sm rounded-xl border border-gray-200 outline-none focus:ring-2 ring-[var(--primary)] focus:border-transparent" />
+            <MapPin size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 z-10 pointer-events-none" />
+            {isLoaded ? (
+              <Autocomplete
+                onLoad={(ac) => { autocompleteRef.current = ac; }}
+                onPlaceChanged={onPlaceChanged}
+                options={{ componentRestrictions: { country: "ca" }, fields: ["address_components", "geometry", "name"] }}
+              >
+                <input
+                  type="text"
+                  placeholder="Search address, city, neighbourhood…"
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  className="w-full pl-9 pr-3 py-2 text-sm rounded-xl border border-gray-200 outline-none focus:ring-2 ring-[var(--primary)] focus:border-transparent"
+                />
+              </Autocomplete>
+            ) : (
+              <input
+                type="text"
+                placeholder="Search address, city, neighbourhood…"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                className="w-full pl-9 pr-3 py-2 text-sm rounded-xl border border-gray-200 outline-none focus:ring-2 ring-[var(--primary)] focus:border-transparent"
+              />
+            )}
           </div>
           <button type="submit" className="p-2 rounded-xl text-white" style={{ background: "var(--primary)" }}>
             <Search size={15} />
@@ -261,12 +302,11 @@ export default function MapClient() {
               <MapPinned size={48} className="text-gray-300 mb-4" />
               <p className="font-semibold text-gray-700 mb-2">Map not configured</p>
               <p className="text-sm text-gray-500 max-w-md mb-4">
-                Add <code className="bg-gray-200 px-1 rounded text-xs">NEXT_PUBLIC_GOOGLE_MAPS_KEY</code> to your .env.local file. Get a key from{" "}
-                <a href="https://console.cloud.google.com/google/maps-apis" target="_blank" rel="noopener noreferrer" className="text-[var(--primary)] hover:underline">Google Cloud Console</a>.
+                Add <code className="bg-gray-200 px-1 rounded text-xs">NEXT_PUBLIC_GOOGLE_MAPS_KEY</code> to your .env.local file.
               </p>
             </div>
           ) : (
-            <MapView listings={listings} hoveredId={hoveredId} setHoveredId={setHoveredId} selectedPin={selectedPin} setSelectedPin={setSelectedPin} mapRef={mapRef} />
+            <MapView listings={listings} hoveredId={hoveredId} setHoveredId={setHoveredId} selectedPin={selectedPin} setSelectedPin={setSelectedPin} mapRef={mapRef} isLoaded={isLoaded} loadError={loadError} />
           )}
         </div>
       </div>

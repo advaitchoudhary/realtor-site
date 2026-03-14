@@ -1,16 +1,44 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Search, MapPin, ChevronDown } from "lucide-react";
 import { siteConfig } from "@/lib/config";
+import { useJsApiLoader, Autocomplete } from "@react-google-maps/api";
 
 const popularCities = ["Brampton", "Mississauga", "Milton", "Caledon", "Georgetown", "Bolton"];
+const LIBRARIES: ("places")[] = ["places"];
 
 export default function HeroSection() {
   const router = useRouter();
   const [searchText, setSearchText] = useState("");
   const [listingType, setListingType] = useState("Sale");
+  const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
+
+  const { isLoaded } = useJsApiLoader({
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY ?? "",
+    libraries: LIBRARIES,
+  });
+
+  function onPlaceChanged() {
+    const place = autocompleteRef.current?.getPlace();
+    if (!place) return;
+    const city = place.address_components?.find((c) => c.types.includes("locality"))?.long_name
+      ?? place.address_components?.find((c) => c.types.includes("sublocality"))?.long_name
+      ?? place.name
+      ?? "";
+    const lat = place.geometry?.location?.lat();
+    const lng = place.geometry?.location?.lng();
+    if (city) {
+      const params = new URLSearchParams({ city, type: listingType });
+      if (lat != null && lng != null) {
+        params.set("lat", lat.toFixed(6));
+        params.set("lng", lng.toFixed(6));
+        params.set("near", place.name ?? city);
+      }
+      router.push(`/listings?${params.toString()}`);
+    }
+  }
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -75,14 +103,30 @@ export default function HeroSection() {
 
               <div className="flex gap-2">
                 <div className="relative flex-1">
-                  <MapPin size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <input
-                    type="text"
-                    placeholder="Address or MLS® Number"
-                    value={searchText}
-                    onChange={(e) => setSearchText(e.target.value)}
-                    className="w-full pl-11 pr-4 py-4 rounded-xl bg-white text-gray-800 placeholder-gray-400 text-sm outline-none focus:ring-2 ring-[var(--accent)] transition-all"
-                  />
+                  <MapPin size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 z-10 pointer-events-none" />
+                  {isLoaded ? (
+                    <Autocomplete
+                      onLoad={(ac) => { autocompleteRef.current = ac; }}
+                      onPlaceChanged={onPlaceChanged}
+                      options={{ componentRestrictions: { country: "ca" }, fields: ["address_components", "geometry", "name"] }}
+                    >
+                      <input
+                        type="text"
+                        placeholder="Address, city or neighbourhood…"
+                        value={searchText}
+                        onChange={(e) => setSearchText(e.target.value)}
+                        className="w-full pl-11 pr-4 py-4 rounded-xl bg-white text-gray-800 placeholder-gray-400 text-sm outline-none focus:ring-2 ring-[var(--accent)] transition-all"
+                      />
+                    </Autocomplete>
+                  ) : (
+                    <input
+                      type="text"
+                      placeholder="Address, city or neighbourhood…"
+                      value={searchText}
+                      onChange={(e) => setSearchText(e.target.value)}
+                      className="w-full pl-11 pr-4 py-4 rounded-xl bg-white text-gray-800 placeholder-gray-400 text-sm outline-none focus:ring-2 ring-[var(--accent)] transition-all"
+                    />
+                  )}
                 </div>
                 <button
                   type="submit"
