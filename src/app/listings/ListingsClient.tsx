@@ -1,9 +1,7 @@
 "use client";
 
-
-
 import { useEffect, useState, useCallback } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Listing, SearchFilters } from "@/lib/types";
 import ListingCard from "@/components/listings/ListingCard";
 import SearchFiltersPanel from "@/components/listings/SearchFilters";
@@ -27,68 +25,119 @@ const DEFAULT_FILTERS: SearchFilters = {
 
 export default function ListingsClient() {
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const ddfQuery = searchParams.get("search") ?? "";
+  const cityParam = searchParams.get("city") ?? siteConfig.api.defaultCity;
+  const listingType = searchParams.get("type") ?? "Sale";
+
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
+  const [ddfError, setDdfError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const [searchInput, setSearchInput] = useState("");
+  const [searchInput, setSearchInput] = useState(ddfQuery);
   const [filters, setFilters] = useState<SearchFilters>(() => ({
     ...DEFAULT_FILTERS,
-    searchByText: `${searchParams.get("city") ?? siteConfig.api.defaultCity}, ${siteConfig.api.defaultProvince}, Canada`,
-    listingType: [(searchParams.get("type") ?? "Sale")],
+    searchByText: ddfQuery || `${cityParam}, ${siteConfig.api.defaultProvince}, Canada`,
+    listingType: [listingType],
+    area: ddfQuery ? undefined : cityParam,
   }));
 
-  const fetchListings = useCallback(async (f: SearchFilters) => {
+  const isDdfMode = !!ddfQuery;
+
+  const fetchListings = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/listings/search", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          search: {
-            searchType: f.searchType,
-            listingType: f.listingType,
-            searchByText: f.searchByText,
-            bed: f.bed,
-            bath: f.bath,
-            priceRange: { min: f.priceMin, max: f.priceMax },
-            propertyType: f.propertyType,
-            sortby: f.sortby,
-            page: f.page,
-            limit: f.limit,
-          },
-        }),
-      });
-      const data = await res.json();
-      setListings(data.listings ?? []);
-      setTotal(data.total ?? 0);
+      if (isDdfMode) {
+        const res = await fetch("/api/listings/ddf-search", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            query: ddfQuery,
+            page: filters.page,
+            limit: filters.limit,
+          }),
+        });
+        const data = await res.json();
+        if (data.error && res.status >= 400) {
+          setListings([]);
+          setTotal(0);
+          setDdfError(res.status === 503 ? "DDF search is not configured. Add DDF_CLIENT_ID and DDF_CLIENT_SECRET to .env.local." : data.error);
+        } else {
+          setDdfError(null);
+          setListings(data.listings ?? []);
+          setTotal(data.total ?? 0);
+        }
+      } else {
+        const res = await fetch("/api/listings/search", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            search: {
+              searchType: filters.searchType,
+              listingType: filters.listingType,
+              searchByText: `${cityParam}, ${siteConfig.api.defaultProvince}, Canada`,
+              bed: filters.bed,
+              bath: filters.bath,
+              priceRange: { min: filters.priceMin, max: filters.priceMax },
+              propertyType: filters.propertyType,
+              sortby: filters.sortby,
+              page: filters.page,
+              limit: filters.limit,
+            },
+          }),
+        });
+        const data = await res.json();
+        setListings(data.listings ?? []);
+        setTotal(data.total ?? 0);
+        setDdfError(null);
+      }
     } catch {
       setListings([]);
+      setDdfError(isDdfMode ? "Search failed. Check your DDF credentials." : null);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [isDdfMode, ddfQuery, cityParam, filters.page, filters.limit, filters.searchType, filters.listingType, filters.bed, filters.bath, filters.priceMin, filters.priceMax, filters.propertyType, filters.sortby]);
 
-  useEffect(() => { fetchListings(filters); }, [filters, fetchListings]);
+  useEffect(() => {
+    fetchListings();
+  }, [fetchListings]);
+
+  useEffect(() => {
+    setSearchInput(ddfQuery);
+  }, [ddfQuery]);
+
+  useEffect(() => {
+    if (!ddfQuery) setFilters((f) => ({ ...f, area: cityParam }));
+  }, [cityParam, ddfQuery]);
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
-    setFilters((f) => ({ ...f, searchByText: searchInput || f.searchByText }));
+    const q = searchInput.trim();
+    if (q) {
+      router.push(`/listings?search=${encodeURIComponent(q)}&type=${filters.listingType[0]}`);
+    } else {
+      const city = filters.searchByText.split(",")[0] || cityParam;
+      router.push(`/listings?city=${encodeURIComponent(city)}&type=${filters.listingType[0]}`);
+    }
   }
 
-  const city = filters.searchByText.split(",")[0];
+  const headerLabel = isDdfMode
+    ? (loading ? "Searching…" : `${total} Properties matching "${ddfQuery}"`)
+    : (loading ? "Searching…" : `${total} Properties in ${cityParam}`);
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-20">
+    <div className="min-h-screen bg-gray-50 pt-24 lg:pt-28">
       {/* Search bar row */}
-      <div className="bg-white border-b border-gray-100 shadow-sm sticky top-16 lg:top-20 z-30">
+      <div className="bg-white border-b border-gray-100 shadow-sm sticky top-20 lg:top-24 z-30">
         <div className="max-w-7xl mx-auto px-6 lg:px-10 py-3 flex flex-wrap items-center gap-3">
           <form onSubmit={handleSearch} className="flex-1 min-w-0 flex items-center gap-2">
             <div className="relative flex-1">
               <MapPin size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
-                placeholder={filters.searchByText}
+                placeholder="Address or MLS® Number"
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
                 className="w-full pl-9 pr-3 py-2.5 text-sm rounded-xl border border-gray-200 outline-none focus:ring-2 ring-[var(--primary)] focus:border-transparent"
@@ -128,7 +177,12 @@ export default function ListingsClient() {
         {/* Filters sidebar */}
         <SearchFiltersPanel
           filters={filters}
-          onChange={(partial) => setFilters((f) => ({ ...f, ...partial }))}
+          onChange={(partial) => {
+            setFilters((f) => ({ ...f, ...partial }));
+            if ("area" in partial && partial.area && !ddfQuery) {
+              router.push(`/listings?city=${encodeURIComponent(partial.area)}&type=${partial.listingType?.[0] ?? filters.listingType[0]}`);
+            }
+          }}
           totalCount={total}
         />
 
@@ -138,7 +192,7 @@ export default function ListingsClient() {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-xl font-bold text-gray-900">
-                {loading ? "Searching…" : `${total} Properties in ${city}`}
+                {headerLabel}
               </h1>
               <p className="text-sm text-gray-500 mt-0.5">
                 {filters.listingType[0] === "Sale" ? "For Sale" : "For Lease"}
@@ -164,13 +218,19 @@ export default function ListingsClient() {
             <div className="text-center py-24">
               <div className="text-6xl mb-4">🏡</div>
               <h3 className="text-xl font-bold text-gray-700 mb-2">No listings found</h3>
-              <p className="text-gray-500 mb-6">Try adjusting your filters or searching a different area.</p>
+              <p className="text-gray-500 mb-6">
+                {ddfError ?? "Try adjusting your filters or searching a different area."}
+              </p>
               <button
-                onClick={() => setFilters(DEFAULT_FILTERS)}
+                onClick={() =>
+                  isDdfMode
+                    ? router.push(`/listings?city=${siteConfig.api.defaultCity}&type=Sale`)
+                    : setFilters({ ...DEFAULT_FILTERS, searchByText: `${cityParam}, ${siteConfig.api.defaultProvince}, Canada`, listingType: ["Sale"] })
+                }
                 className="px-6 py-3 rounded-full text-white font-semibold"
                 style={{ background: "var(--primary)" }}
               >
-                Clear Filters
+                {isDdfMode ? "Browse by City" : "Clear Filters"}
               </button>
             </div>
           ) : (

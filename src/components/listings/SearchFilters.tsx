@@ -37,6 +37,8 @@ const propertyTypes = [
   { value: "townhomes", label: "Townhouse" },
 ];
 
+const AREAS = ["Brampton", "Mississauga", "Milton", "Caledon", "Georgetown", "Bolton"];
+
 export default function SearchFiltersPanel({ filters, onChange, totalCount }: Props) {
   const [showMobile, setShowMobile] = useState(false);
 
@@ -61,6 +63,30 @@ export default function SearchFiltersPanel({ filters, onChange, totalCount }: Pr
               style={filters.listingType[0] === t ? { background: "var(--primary)", borderColor: "var(--primary)" } : {}}
             >
               {t === "Sale" ? "For Sale" : "For Lease"}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Area */}
+      <div>
+        <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-3">
+          Area
+        </label>
+        <div className="flex flex-wrap gap-2">
+          {AREAS.map((area) => (
+            <button
+              key={area}
+              onClick={() => onChange({ area })}
+              className={cn(
+                "px-3 py-1.5 rounded-full text-xs font-medium border transition-all",
+                filters.area === area
+                  ? "text-white border-transparent"
+                  : "border-gray-200 text-gray-600 hover:border-gray-300"
+              )}
+              style={filters.area === area ? { background: "var(--primary)" } : {}}
+            >
+              {area}
             </button>
           ))}
         </div>
@@ -186,7 +212,7 @@ export default function SearchFiltersPanel({ filters, onChange, totalCount }: Pr
 
       {/* Reset */}
       <button
-        onClick={() => onChange({ bed: 0, bath: 0, priceMin: 0, priceMax: 0, listingType: ["Sale"], propertyType: "", sortby: "newest" })}
+        onClick={() => onChange({ bed: 0, bath: 0, priceMin: 0, priceMax: 0, listingType: ["Sale"], propertyType: "", sortby: "newest", area: undefined })}
         className="w-full py-2.5 rounded-xl border-2 border-dashed border-gray-200 text-sm text-gray-500 hover:border-gray-300 hover:text-gray-700 transition-all flex items-center justify-center gap-2"
       >
         <X size={14} />
@@ -199,7 +225,7 @@ export default function SearchFiltersPanel({ filters, onChange, totalCount }: Pr
     <>
       {/* Desktop sidebar */}
       <aside className="hidden lg:block w-72 shrink-0">
-        <div className="sticky top-24 bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        <div className="sticky top-28 lg:top-32 bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="font-bold text-[var(--primary)] flex items-center gap-2">
               <SlidersHorizontal size={18} />

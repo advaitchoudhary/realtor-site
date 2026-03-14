@@ -3,12 +3,12 @@ import Link from "next/link";
 export const metadata = { title: "Neighbourhoods" };
 
 const neighbourhoods = [
-  { name: "The Annex",          city: "Toronto",     desc: "Tree-lined streets, Victorian homes, close to University of Toronto.", image: "https://picsum.photos/id/1029/600/400", listings: 42 },
-  { name: "Rosedale",           city: "Toronto",     desc: "Toronto's most prestigious neighbourhood with grand historic estates.", image: "https://picsum.photos/id/164/600/400",  listings: 28 },
-  { name: "Leslieville",        city: "Toronto",     desc: "Trendy east-end community with cafés, boutiques and parks.",           image: "https://picsum.photos/id/106/600/400",  listings: 35 },
-  { name: "Bloor West Village", city: "Toronto",     desc: "Family-friendly, top schools, charming retail strip.",                 image: "https://picsum.photos/id/137/600/400",  listings: 51 },
-  { name: "Port Credit",        city: "Mississauga", desc: "Lakeside village with stunning waterfront and dining.",                image: "https://picsum.photos/id/65/600/400",   listings: 24 },
-  { name: "Old Oakville",       city: "Oakville",    desc: "Heritage homes, harbour views and upscale amenities.",                image: "https://picsum.photos/id/42/600/400",   listings: 19 },
+  { name: "Brampton",     city: "Brampton",  desc: "A diverse city with parks, heritage sites and family-friendly neighbourhoods.",           image: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600&h=400&fit=crop", listings: 42 },
+  { name: "Mississauga",  city: "Mississauga", desc: "Ontario's third-largest city with Lake Ontario waterfront and vibrant urban core.",  image: "https://images.unsplash.com/photo-1506929562872-bb421503ef21?w=600&h=400&fit=crop", listings: 58 },
+  { name: "Milton",       city: "Milton",   desc: "Growing town at the Niagara Escarpment with scenic trails and strong community.",   image: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600&h=400&fit=crop", listings: 34 },
+  { name: "Caledon",      city: "Caledon",  desc: "Rural charm with rolling hills, conservation areas and equestrian estates.",        image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=600&h=400&fit=crop", listings: 27 },
+  { name: "Georgetown",   city: "Georgetown", desc: "Historic Halton Hills town with a charming downtown and excellent schools.",      image: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&h=400&fit=crop", listings: 31 },
+  { name: "Bolton",       city: "Bolton",   desc: "Friendly community in Caledon with local shops, parks and easy commuter access.",   image: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=600&h=400&fit=crop", listings: 22 },
 ];
 
 export default function NeighbourhoodsPage() {

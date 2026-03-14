@@ -1,10 +1,9 @@
 import Link from "next/link";
 import { siteConfig } from "@/lib/config";
-import { Star, TrendingUp, Trophy, Home, Award } from "lucide-react";
+import { Star, TrendingUp, Trophy, Home } from "lucide-react";
 
 const highlights = [
   { icon: Trophy, label: "4× Centurion Award", desc: "Century 21's most prestigious honour — four-time winner" },
-  { icon: Award, label: "Top Selling Agent", desc: "Consistently ranked as a top resale agent in Ontario" },
   { icon: Home, label: "Pre-Construction Expert", desc: "Recognized as a leading pre-construction specialist" },
   { icon: TrendingUp, label: "Market Expert", desc: "Deep knowledge of GTA and Brampton market trends" },
 ];
@@ -20,7 +19,7 @@ export default function AgentSection() {
               <img
                 src={siteConfig.agent.photo}
                 alt={siteConfig.agent.name}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover object-top"
               />
               {/* Floating badge */}
               <div className="absolute bottom-6 left-6 right-6 bg-white/95 backdrop-blur-sm rounded-xl p-4 shadow-xl">

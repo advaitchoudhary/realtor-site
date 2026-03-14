@@ -30,7 +30,7 @@ export default function CTASection() {
             className="px-8 py-4 rounded-full font-bold text-[var(--primary)] transition-all hover:opacity-90 hover:scale-105"
             style={{ background: "var(--accent)" }}
           >
-            Get a Free Quote
+            Contact
           </Link>
           <a
             href={`tel:${siteConfig.agent.phone}`}

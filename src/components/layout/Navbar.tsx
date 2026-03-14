@@ -65,13 +65,13 @@ export default function Navbar() {
         )}
 
         <div className="flex items-center justify-between px-6 lg:px-10 h-16 lg:h-20">
-          {/* Logo */}
+          {/* Agent headshot */}
           <Link href="/" className="flex items-center gap-3">
-            <div className="bg-white rounded-xl px-2 py-1 shadow-sm shrink-0">
+            <div className="rounded-full overflow-hidden shrink-0 border-2 shadow-sm" style={{ borderColor: "var(--accent)" }}>
               <img
-                src={siteConfig.site.logo}
-                alt={siteConfig.site.name}
-                className="h-9 lg:h-11 w-auto object-contain"
+                src={siteConfig.agent.photo}
+                alt={siteConfig.agent.name}
+                className="h-10 w-10 lg:h-12 lg:w-12 object-cover object-top"
               />
             </div>
             {/* Divider */}
@@ -85,7 +85,7 @@ export default function Navbar() {
                 {siteConfig.agent.name}
               </span>
               <span className="text-[10px] font-semibold tracking-widest uppercase" style={{ color: "var(--accent)" }}>
-                REALTOR® &middot; Century 21
+                REALTOR® · {siteConfig.agent.license}
               </span>
             </div>
           </Link>
@@ -148,7 +148,7 @@ export default function Navbar() {
               className="px-5 py-2.5 text-sm font-semibold rounded-full text-white transition-all hover:opacity-90 hover:scale-105"
               style={{ background: "var(--accent)" }}
             >
-              Get a Free Quote
+              Contact
             </Link>
           </div>
 
@@ -169,12 +169,12 @@ export default function Navbar() {
           <nav className="absolute top-0 right-0 h-full w-80 bg-white shadow-2xl flex flex-col">
             <div className="flex items-center justify-between p-5 border-b">
               <div className="flex items-center gap-3">
-                <div className="bg-white rounded-lg px-1.5 py-0.5 shadow-sm border border-gray-100">
-                  <img src={siteConfig.site.logo} alt={siteConfig.site.name} className="h-8 w-auto object-contain" />
+                <div className="rounded-full overflow-hidden shrink-0 border-2" style={{ borderColor: "var(--accent)" }}>
+                  <img src={siteConfig.agent.photo} alt={siteConfig.agent.name} className="h-10 w-10 object-cover object-top" />
                 </div>
                 <div className="flex flex-col leading-tight">
                   <span className="text-sm font-bold text-[var(--primary)]">{siteConfig.agent.name}</span>
-                  <span className="text-[10px] font-semibold tracking-widest uppercase" style={{ color: "var(--accent)" }}>REALTOR® · Century 21</span>
+                  <span className="text-[10px] font-semibold tracking-widest uppercase" style={{ color: "var(--accent)" }}>REALTOR® · {siteConfig.agent.license}</span>
                 </div>
               </div>
               <button onClick={() => setMobileOpen(false)}><X size={24} /></button>
@@ -213,7 +213,7 @@ export default function Navbar() {
                 className="block w-full py-3 text-center text-white font-semibold rounded-full transition-opacity hover:opacity-90"
                 style={{ background: "var(--accent)" }}
               >
-                Get a Free Quote
+                Contact
               </Link>
             </div>
           </nav>

@@ -18,7 +18,21 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### REALTOR.ca DDF® API (Address / MLS® Search)
+
+Search by **address or MLS® number** using the [DDF API](https://ddfapi-docs.realtor.ca/):
+
+1. Register at [tools.realtorlink.ca](https://tools.realtorlink.ca/) and obtain Client ID & Secret
+2. Copy `.env.example` to `.env.local` and add:
+
+```env
+DDF_CLIENT_ID=your_client_id
+DDF_CLIENT_SECRET=your_client_secret
+```
+
+3. The token URL and API base may vary; override via `DDF_TOKEN_URL` and `DDF_API_BASE_URL` if needed
+
+**Security:** Never commit credentials. Use environment variables only. In production, use your platform's secret management.
 
 ## Learn More
 

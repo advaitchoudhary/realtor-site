@@ -7,6 +7,8 @@ import ListingCard from "@/components/listings/ListingCard";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { siteConfig } from "@/lib/config";
 
+const CITIES = ["Brampton", "Mississauga", "Milton", "Caledon", "Georgetown", "Bolton"];
+
 export default function FeaturedListings() {
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
@@ -14,34 +16,47 @@ export default function FeaturedListings() {
   const perPage = 3;
 
   useEffect(() => {
-    fetch("/api/listings/search", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        search: {
-          searchType: "residential",
-          listingType: ["Sale"],
-          searchBy: "searchall",
-          searchByText: `${siteConfig.api.defaultCity}, ${siteConfig.api.defaultProvince}, Canada`,
-          bed: 0, bath: 0,
-          priceRange: { min: 0, max: 0 },
-          feetRange: { min: 0, max: 0 },
-          sortby: "newest",
-        },
-        location: {
-          Latitude: siteConfig.api.defaultLat,
-          Longitude: siteConfig.api.defaultLng,
-          Zoom: siteConfig.api.defaultZoom,
-        },
-      }),
-    })
-      .then((r) => r.json())
-      .then((d) => setListings((d.listings ?? []).slice(0, 9)))
-      .catch(() => setListings([]))
-      .finally(() => setLoading(false));
+    const fetchAll = async () => {
+      const results = await Promise.all(
+        CITIES.map((city) =>
+          fetch("/api/listings/search", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              search: {
+                searchType: "residential",
+                listingType: ["Sale"],
+                searchByText: `${city}, ${siteConfig.api.defaultProvince}, Canada`,
+                bed: 0,
+                bath: 0,
+                priceRange: { min: 0, max: 0 },
+                propertyType: "",
+                sortby: "newest",
+                page: 1,
+                limit: 3,
+              },
+            }),
+          }).then((r) => r.json())
+        )
+      );
+
+      const merged: Listing[] = [];
+      const seen = new Set<string>();
+      for (const r of results) {
+        for (const l of r.listings ?? []) {
+          if (l._id && !seen.has(l._id)) {
+            seen.add(l._id);
+            merged.push(l);
+          }
+        }
+      }
+      setListings(merged.slice(0, 9));
+    };
+
+    fetchAll().catch(() => setListings([])).finally(() => setLoading(false));
   }, []);
 
-  const totalPages = Math.ceil(listings.length / perPage);
+  const totalPages = Math.ceil(listings.length / perPage) || 1;
   const visible = listings.slice(page * perPage, page * perPage + perPage);
 
   return (

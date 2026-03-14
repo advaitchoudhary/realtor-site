@@ -4,34 +4,36 @@ import { Star, ChevronLeft, ChevronRight, Quote } from "lucide-react";
 
 const testimonials = [
   {
-    name: "Sarah & Michael T.",
-    location: "Toronto, ON",
-    text: "John found us our dream home in under 3 weeks! His knowledge of the Toronto market is second to none, and he negotiated $40K off the asking price. Couldn't be happier.",
+    name: "Sakshi Pahwa",
+    location: "GTA, ON",
+    text: "Buying a home is one of the biggest decisions in life, and we couldn't have asked for a better guide than Manoj Chaudhary! From start to finish, Manoj worked tirelessly to help us secure a great deal on our new home, negotiating the price below the asking value at a prime location. His expertise, persistence, and dedication made the entire process seamless and stress-free. Manoj truly cares about his clients and ensures their best interests are prioritized. His professionalism, market knowledge, and strong negotiation skills truly set him apart. If you're looking for a realtor who genuinely puts your needs first and delivers exceptional results, Manoj is the one to call. We're so grateful for his hard work and couldn't be happier with our new home!",
     rating: 5,
     avatar: "https://picsum.photos/id/1005/100/100",
   },
   {
-    name: "David K.",
-    location: "Mississauga, ON",
-    text: "Sold my condo in just 5 days at above asking! John staged it beautifully and his marketing strategy brought in multiple offers. Truly a professional who delivers results.",
+    name: "Ankita Gupta",
+    location: "GTA, ON",
+    text: "We have tons of realtors in town but Manoj ji is a true gem amongst them. We couldn't have asked for a better realtor for our home. He has helped us buy and even sell property amidst even the difficult market situations. He has not just been a realtor but a true guide, friend and saviour. He has a meticulous approach towards every deal and is super approachable. We could always count on him during our buying and selling tenure. He made sure we get the best deal out in the market and he truly achieved it. Thanks to Manoj ji for his all time support and guidance in this real estate market.",
     rating: 5,
     avatar: "https://picsum.photos/id/1012/100/100",
   },
   {
-    name: "Priya & Raj M.",
-    location: "Oakville, ON",
-    text: "As first-time buyers, we were nervous, but John walked us through every step with patience and expertise. He was always available and genuinely cared about finding the right home.",
+    name: "Chaitali Tailor",
+    location: "GTA, ON",
+    text: "We are so grateful to Mr. Manoj for helping us find our new home. He was patient, knowledgeable, and guided us through every step with care. His support made the whole process smooth and stress-free. Thank you so much.",
     rating: 5,
     avatar: "https://picsum.photos/id/1027/100/100",
   },
   {
-    name: "Linda H.",
-    location: "Brampton, ON",
-    text: "John helped me downsize after 25 years in my family home. His empathy and professionalism made an emotional process much easier. Sold above asking in a slow market!",
+    name: "Soumya Ahuja",
+    location: "GTA, ON",
+    text: "Working with Manoj was an incredible experience. He's highly professional, responsive and genuinely invested his time in helping us find the right fit. I'm now settled in my new home, and couldn't thank him enough to help us find this property. I would absolutely recommend him to anyone looking for a dedicated and outstanding agent!",
     rating: 5,
     avatar: "https://picsum.photos/id/1011/100/100",
   },
 ];
+
+const REVIEWS_LINK = "https://www.google.com/search?q=Manoj+Chaudhary+Realtor.ca+Reviews";
 
 export default function TestimonialsSection() {
   const [current, setCurrent] = useState(0);
@@ -46,6 +48,14 @@ export default function TestimonialsSection() {
           <h2 className="text-3xl lg:text-4xl font-bold text-[var(--primary)]">
             Client Testimonials
           </h2>
+          <a
+            href={REVIEWS_LINK}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block mt-3 text-sm text-[var(--primary)] hover:underline font-medium"
+          >
+            View more reviews on Realtor.ca & Google →
+          </a>
         </div>
 
         <div className="relative">

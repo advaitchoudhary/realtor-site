@@ -5,18 +5,21 @@ import { useRouter } from "next/navigation";
 import { Search, MapPin, ChevronDown } from "lucide-react";
 import { siteConfig } from "@/lib/config";
 
-const popularCities = ["Toronto", "Mississauga", "Brampton", "Oakville", "Burlington", "Vaughan", "Richmond Hill", "Markham"];
+const popularCities = ["Brampton", "Mississauga", "Milton", "Caledon", "Georgetown", "Bolton"];
 
 export default function HeroSection() {
   const router = useRouter();
   const [searchText, setSearchText] = useState("");
   const [listingType, setListingType] = useState("Sale");
-  const [showCities, setShowCities] = useState(false);
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
-    const city = searchText.trim() || siteConfig.api.defaultCity;
-    router.push(`/listings?city=${encodeURIComponent(city)}&type=${listingType}`);
+    const query = searchText.trim();
+    if (query) {
+      router.push(`/listings?search=${encodeURIComponent(query)}&type=${listingType}`);
+    } else {
+      router.push(`/listings?city=${encodeURIComponent(siteConfig.api.defaultCity)}&type=${listingType}`);
+    }
   }
 
   return (
@@ -25,7 +28,7 @@ export default function HeroSection() {
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
-          backgroundImage: `url(https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1920&q=85)`,
+          backgroundImage: `url(https://images.unsplash.com/photo-1638454795595-0a0abf68614d?w=1920&q=85)`,
         }}
       />
       {/* Overlay */}
@@ -75,30 +78,11 @@ export default function HeroSection() {
                   <MapPin size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                   <input
                     type="text"
-                    placeholder="Enter city, neighbourhood or address…"
+                    placeholder="Address or MLS® Number"
                     value={searchText}
-                    onChange={(e) => { setSearchText(e.target.value); setShowCities(true); }}
-                    onFocus={() => setShowCities(true)}
-                    onBlur={() => setTimeout(() => setShowCities(false), 150)}
+                    onChange={(e) => setSearchText(e.target.value)}
                     className="w-full pl-11 pr-4 py-4 rounded-xl bg-white text-gray-800 placeholder-gray-400 text-sm outline-none focus:ring-2 ring-[var(--accent)] transition-all"
                   />
-                  {showCities && (
-                    <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-xl shadow-2xl border border-gray-100 z-20 overflow-hidden">
-                      {popularCities
-                        .filter((c) => c.toLowerCase().includes(searchText.toLowerCase()))
-                        .map((city) => (
-                          <button
-                            key={city}
-                            type="button"
-                            onMouseDown={() => { setSearchText(city); setShowCities(false); }}
-                            className="w-full flex items-center gap-3 px-4 py-3 text-sm text-left text-gray-700 hover:bg-[var(--secondary)] transition-colors"
-                          >
-                            <MapPin size={14} className="text-[var(--primary)] shrink-0" />
-                            {city}, ON
-                          </button>
-                        ))}
-                    </div>
-                  )}
                 </div>
                 <button
                   type="submit"
@@ -115,7 +99,7 @@ export default function HeroSection() {
           {/* Quick city pills */}
           <div className="flex flex-wrap justify-center gap-2 mt-6">
             <span className="text-white/60 text-sm self-center mr-1">Popular:</span>
-            {popularCities.slice(0, 5).map((city) => (
+            {popularCities.map((city) => (
               <button
                 key={city}
                 onClick={() => router.push(`/listings?city=${encodeURIComponent(city)}&type=Sale`)}

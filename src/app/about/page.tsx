@@ -1,12 +1,11 @@
 import { siteConfig } from "@/lib/config";
 import Link from "next/link";
-import { Award, Star, TrendingUp, Users, Trophy, Home } from "lucide-react";
+import { Star, TrendingUp, Users, Trophy, Home } from "lucide-react";
 
 export const metadata = { title: "About" };
 
 const awards = [
   { icon: Trophy, label: "4× Centurion Award", desc: "Century 21's highest honour — four-time winner" },
-  { icon: Award, label: "Top Selling Agent", desc: "Consistently ranked as top resale agent" },
   { icon: Home, label: "Pre-Construction Expert", desc: "Recognized as a top pre-construction specialist" },
   { icon: Users, label: "Client-First Approach", desc: "Dedicated to your goals from search to closing" },
 ];
@@ -24,7 +23,7 @@ export default function AboutPage() {
             <p className="text-sm font-semibold uppercase tracking-widest mb-4" style={{ color: "var(--accent)" }}>About</p>
             <h1 className="text-4xl lg:text-5xl font-bold mb-5">Meet {siteConfig.agent.name}</h1>
             <p className="text-white/80 text-lg leading-relaxed">
-              A dedicated REALTOR® with Century 21 Property Zone Realty Inc., Manoj Chaudhary is
+              A dedicated REALTOR® with {siteConfig.agent.license}, Manoj Chaudhary is
               a 4-time Centurion Award winner and one of Brampton&apos;s most trusted real estate
               professionals — helping families buy, sell, and invest with confidence.
             </p>
@@ -42,7 +41,7 @@ export default function AboutPage() {
               <img
                 src={siteConfig.agent.photo}
                 alt={siteConfig.agent.name}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover object-top"
               />
             </div>
           </div>
@@ -88,14 +87,14 @@ export default function AboutPage() {
       <div className="py-16 max-w-4xl mx-auto px-6 lg:px-10 border-t border-gray-100">
         <h2 className="text-3xl font-bold text-[var(--primary)] mb-6">My Story</h2>
         <div className="prose text-gray-600 leading-relaxed space-y-4">
-          <p>Real estate isn&apos;t just my profession — it&apos;s my passion. As a REALTOR® with Century 21 Property Zone Realty Inc., I have built my career on a foundation of trust, dedication, and results. Having earned the prestigious Centurion Award four times, I am proud to be recognized among the top-performing agents in the country.</p>
+          <p>Real estate isn&apos;t just my profession — it&apos;s my passion. As a REALTOR® with {siteConfig.agent.license}, I have built my career on a foundation of trust, dedication, and results. Having earned the prestigious Centurion Award four times, I am proud to be recognized among the top-performing agents in the country.</p>
           <p>I specialize in both resale and pre-construction properties throughout the Greater Toronto Area and Brampton, helping buyers, sellers, and investors navigate the market with confidence. Whether you are a first-time buyer, upgrading your home, or building an investment portfolio, I bring the experience and local market knowledge to make it happen.</p>
           <p>My approach is simple: listen to what you need, work relentlessly to achieve it, and keep you informed every step of the way. I believe that buying or selling a home should be an exciting experience — and I am here to make sure it is.</p>
           <p>If you are ready to take the next step, I would love to connect. Reach out today and let&apos;s find your perfect home together.</p>
         </div>
 
         <div className="mt-10 p-6 rounded-2xl border-l-4 flex flex-col sm:flex-row sm:items-center gap-6" style={{ borderColor: "var(--accent)", background: "var(--secondary)" }}>
-          <img src={siteConfig.agent.photo} alt={siteConfig.agent.name} className="w-20 h-20 rounded-full object-cover shrink-0" />
+          <img src={siteConfig.agent.photo} alt={siteConfig.agent.name} className="w-20 h-20 rounded-full object-cover object-top shrink-0" />
           <div>
             <div className="font-bold text-[var(--primary)] text-lg">{siteConfig.agent.name}</div>
             <div className="text-sm text-gray-500">{siteConfig.agent.title}</div>

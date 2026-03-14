@@ -1,10 +1,10 @@
 export const siteConfig = {
   agent: {
-    name: process.env.NEXT_PUBLIC_AGENT_NAME ?? "Your Agent Name",
+    name: process.env.NEXT_PUBLIC_AGENT_NAME ?? "Manoj Chaudhary",
     title: process.env.NEXT_PUBLIC_AGENT_TITLE ?? "Real Estate Specialist",
-    phone: process.env.NEXT_PUBLIC_AGENT_PHONE ?? "(416) 555-0100",
-    email: process.env.NEXT_PUBLIC_AGENT_EMAIL ?? "agent@realty.ca",
-    license: process.env.NEXT_PUBLIC_AGENT_LICENSE ?? "Brokerage Name",
+    phone: process.env.NEXT_PUBLIC_AGENT_PHONE ?? "+1 (416) 568-2578",
+    email: process.env.NEXT_PUBLIC_AGENT_EMAIL ?? "realtormanoj9@gmail.com",
+    license: process.env.NEXT_PUBLIC_AGENT_LICENSE ?? "Century 21",
     address: process.env.NEXT_PUBLIC_AGENT_ADDRESS ?? "25 Van Kirk Dr. Unit 1, Brampton, ON L7A1A4",
     photo: process.env.NEXT_PUBLIC_AGENT_PHOTO ?? "/images/agent.jpg",
   },
@@ -26,6 +26,10 @@ export const siteConfig = {
   },
   api: {
     incomUrl: process.env.NEXT_PUBLIC_INCOM_API_URL ?? "https://api.ca.incomrealestate.com",
+    ddfEnabled: !!(
+      process.env.DDF_CLIENT_ID &&
+      process.env.DDF_CLIENT_SECRET
+    ),
     defaultCity: process.env.NEXT_PUBLIC_DEFAULT_CITY ?? "Toronto",
     defaultProvince: process.env.NEXT_PUBLIC_DEFAULT_PROVINCE ?? "ON",
     defaultLat: parseFloat(process.env.NEXT_PUBLIC_DEFAULT_LAT ?? "43.718006"),
@@ -34,10 +38,12 @@ export const siteConfig = {
     googleMapsKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY ?? "",
   },
   social: {
-    facebook: process.env.NEXT_PUBLIC_FACEBOOK_URL ?? "",
+    facebook: process.env.NEXT_PUBLIC_FACEBOOK_URL ?? "https://www.facebook.com/manoj.chaudhary.777",
     instagram: process.env.NEXT_PUBLIC_INSTAGRAM_URL ?? "",
     twitter: process.env.NEXT_PUBLIC_TWITTER_URL ?? "",
     linkedin: process.env.NEXT_PUBLIC_LINKEDIN_URL ?? "",
+    tiktok: process.env.NEXT_PUBLIC_TIKTOK_URL ?? "https://www.tiktok.com/@realtor.manoj",
+    youtube: process.env.NEXT_PUBLIC_YOUTUBE_URL ?? "https://www.youtube.com/@Realtor.ManojChaudhary",
   },
 };
 

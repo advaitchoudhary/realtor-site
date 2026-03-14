@@ -6,9 +6,124 @@ import { GoogleMap, useJsApiLoader, MarkerF, InfoWindowF } from "@react-google-m
 import { Listing, SearchFilters } from "@/lib/types";
 import { formatPrice } from "@/lib/utils";
 import { siteConfig } from "@/lib/config";
-import { MapPin, Search, ArrowLeft, Bed, Bath } from "lucide-react";
+import { MapPin, Search, ArrowLeft, Bed, Bath, MapPinned } from "lucide-react";
 import Link from "next/link";
 import ListingCard from "@/components/listings/ListingCard";
+
+function MapView({
+  listings,
+  hoveredId,
+  setHoveredId,
+  selectedPin,
+  setSelectedPin,
+  mapRef,
+}: {
+  listings: Listing[];
+  hoveredId: string | null;
+  setHoveredId: (id: string | null) => void;
+  selectedPin: Listing | null;
+  setSelectedPin: (l: Listing | null) => void;
+  mapRef: React.MutableRefObject<google.maps.Map | null>;
+}) {
+  const mapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY ?? "";
+  const { isLoaded, loadError } = useJsApiLoader({
+    googleMapsApiKey: mapsKey,
+    libraries: ["places"],
+  });
+  const center = { lat: siteConfig.api.defaultLat, lng: siteConfig.api.defaultLng };
+  const onMapLoad = useCallback((map: google.maps.Map) => { mapRef.current = map; }, [mapRef]);
+
+  useEffect(() => {
+    if (!mapRef.current || listings.length === 0) return;
+    const bounds = new google.maps.LatLngBounds();
+    listings.forEach((l) => bounds.extend({ lat: l.Latitude, lng: l.Longitude }));
+    mapRef.current.fitBounds(bounds, 60);
+  }, [listings, mapRef]);
+
+  const pinIcon = (active: boolean) => ({
+    path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
+    fillColor: active ? "#C9A84C" : "#1a1a1a",
+    fillOpacity: 1,
+    strokeColor: "#ffffff",
+    strokeWeight: 1.5,
+    scale: active ? 1.8 : 1.4,
+    anchor: new google.maps.Point(12, 22),
+  });
+
+  if (loadError) {
+    return (
+      <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-50 p-6 text-center">
+        <MapPinned size={48} className="text-gray-300 mb-4" />
+        <p className="font-semibold text-gray-700 mb-2">Google Maps failed to load</p>
+        <p className="text-sm text-gray-500 max-w-md mb-4">
+          ApiProjectMapError usually means: (1) Add <code className="bg-gray-200 px-1 rounded">NEXT_PUBLIC_GOOGLE_MAPS_KEY</code> to .env.local, (2) Enable &quot;Maps JavaScript API&quot; in Google Cloud Console, (3) Enable billing on your project.
+        </p>
+        <a
+          href="https://developers.google.com/maps/documentation/javascript/error-messages#api-project-map-error"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-sm text-[var(--primary)] hover:underline"
+        >
+          Troubleshooting guide →
+        </a>
+      </div>
+    );
+  }
+
+  if (!isLoaded) {
+    return (
+      <div className="absolute inset-0 flex items-center justify-center bg-blue-50">
+        <div className="text-center text-gray-400">
+          <div className="w-10 h-10 border-2 border-gray-300 border-t-[var(--accent)] rounded-full animate-spin mx-auto mb-3" />
+          <p className="text-sm">Loading map…</p>
+        </div>
+      </div>
+    );
+  }
+
+  const MAP_CONTAINER_STYLE = { width: "100%", height: "100%" };
+  const MAP_OPTIONS: google.maps.MapOptions = {
+    disableDefaultUI: false,
+    zoomControl: true,
+    streetViewControl: false,
+    mapTypeControl: false,
+    fullscreenControl: true,
+    styles: [
+      { featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] },
+      { featureType: "transit", elementType: "labels", stylers: [{ visibility: "off" }] },
+    ],
+  };
+
+  return (
+    <GoogleMap mapContainerStyle={MAP_CONTAINER_STYLE} center={center} zoom={siteConfig.api.defaultZoom} options={MAP_OPTIONS} onLoad={onMapLoad} onClick={() => setSelectedPin(null)}>
+      {listings.map((listing) => (
+        <MarkerF key={listing._id} position={{ lat: listing.Latitude, lng: listing.Longitude }}
+          icon={pinIcon(hoveredId === listing._id || selectedPin?._id === listing._id)}
+          onMouseOver={() => setHoveredId(listing._id)} onMouseOut={() => setHoveredId(null)}
+          onClick={() => setSelectedPin(selectedPin?._id === listing._id ? null : listing)} />
+      ))}
+      {selectedPin && (
+        <InfoWindowF position={{ lat: selectedPin.Latitude, lng: selectedPin.Longitude }} onCloseClick={() => setSelectedPin(null)} options={{ pixelOffset: new google.maps.Size(0, -30) }}>
+          <div className="w-64 font-sans">
+            {selectedPin.MainImage && (
+              <div className="relative h-32 -mx-3 -mt-3 mb-3 overflow-hidden rounded-t-lg">
+                <img src={selectedPin.MainImage} alt={selectedPin.Address} className="w-full h-full object-cover" />
+                <div className="absolute bottom-2 left-2"><span className="px-2 py-0.5 rounded-md text-xs font-bold text-white" style={{ background: "#1a1a1a" }}>{formatPrice(selectedPin.Price)}</span></div>
+              </div>
+            )}
+            <h3 className="font-semibold text-gray-900 text-sm mb-0.5">{selectedPin.Address}</h3>
+            <p className="text-xs text-gray-500 mb-2">{selectedPin.City}, {selectedPin.Province}</p>
+            <div className="flex items-center gap-3 text-xs text-gray-600 mb-3">
+              <span className="flex items-center gap-1"><Bed size={11} /> {selectedPin.Bedrooms} beds</span>
+              <span className="flex items-center gap-1"><Bath size={11} /> {selectedPin.Bathrooms} baths</span>
+            </div>
+            <Link href={`/listings/${selectedPin._id}`} className="block w-full py-1.5 text-center text-xs font-semibold text-white rounded-lg" style={{ background: "#1a1a1a" }}>View Details →</Link>
+          </div>
+        </InfoWindowF>
+      )}
+    </GoogleMap>
+  );
+}
 
 const DEFAULT_FILTERS: SearchFilters = {
   searchByText: `${siteConfig.api.defaultCity}, ${siteConfig.api.defaultProvince}, Canada`,
@@ -19,20 +134,6 @@ const DEFAULT_FILTERS: SearchFilters = {
   sortby: "newest",
   propertyType: "",
   page: 1, limit: 100,
-};
-
-const MAP_CONTAINER_STYLE = { width: "100%", height: "100%" };
-
-const MAP_OPTIONS: google.maps.MapOptions = {
-  disableDefaultUI: false,
-  zoomControl: true,
-  streetViewControl: false,
-  mapTypeControl: false,
-  fullscreenControl: true,
-  styles: [
-    { featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] },
-    { featureType: "transit", elementType: "labels", stylers: [{ visibility: "off" }] },
-  ],
 };
 
 export default function MapClient() {
@@ -48,10 +149,8 @@ export default function MapClient() {
   const [searchInput, setSearchInput] = useState("");
   const mapRef = useRef<google.maps.Map | null>(null);
 
-  const { isLoaded, loadError } = useJsApiLoader({
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY ?? "",
-    libraries: ["places"],
-  });
+  const mapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY ?? "";
+  const hasMapsKey = !!mapsKey.trim();
 
   const center = { lat: siteConfig.api.defaultLat, lng: siteConfig.api.defaultLng };
 
@@ -103,25 +202,6 @@ export default function MapClient() {
       setSearchInput("");
     }
   }
-
-  const onMapLoad = useCallback((map: google.maps.Map) => { mapRef.current = map; }, []);
-
-  useEffect(() => {
-    if (!mapRef.current || listings.length === 0) return;
-    const bounds = new google.maps.LatLngBounds();
-    listings.forEach((l) => bounds.extend({ lat: l.Latitude, lng: l.Longitude }));
-    mapRef.current.fitBounds(bounds, 60);
-  }, [listings]);
-
-  const pinIcon = (active: boolean) => ({
-    path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
-    fillColor: active ? "#C9A84C" : "#1a1a1a",
-    fillOpacity: 1,
-    strokeColor: "#ffffff",
-    strokeWeight: 1.5,
-    scale: active ? 1.8 : 1.4,
-    anchor: new google.maps.Point(12, 22),
-  });
 
   return (
     <div className="h-screen flex flex-col pt-20 overflow-hidden">
@@ -176,43 +256,17 @@ export default function MapClient() {
         </div>
 
         <div className="flex-1 relative overflow-hidden">
-          {loadError && <div className="absolute inset-0 flex items-center justify-center bg-red-50"><p className="text-red-500 text-sm">Failed to load Google Maps. Check your API key.</p></div>}
-          {!isLoaded && !loadError && (
-            <div className="absolute inset-0 flex items-center justify-center bg-blue-50">
-              <div className="text-center text-gray-400">
-                <div className="w-10 h-10 border-2 border-gray-300 border-t-[var(--accent)] rounded-full animate-spin mx-auto mb-3" />
-                <p className="text-sm">Loading map…</p>
-              </div>
+          {!hasMapsKey ? (
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-50 p-6 text-center">
+              <MapPinned size={48} className="text-gray-300 mb-4" />
+              <p className="font-semibold text-gray-700 mb-2">Map not configured</p>
+              <p className="text-sm text-gray-500 max-w-md mb-4">
+                Add <code className="bg-gray-200 px-1 rounded text-xs">NEXT_PUBLIC_GOOGLE_MAPS_KEY</code> to your .env.local file. Get a key from{" "}
+                <a href="https://console.cloud.google.com/google/maps-apis" target="_blank" rel="noopener noreferrer" className="text-[var(--primary)] hover:underline">Google Cloud Console</a>.
+              </p>
             </div>
-          )}
-          {isLoaded && (
-            <GoogleMap mapContainerStyle={MAP_CONTAINER_STYLE} center={center} zoom={siteConfig.api.defaultZoom} options={MAP_OPTIONS} onLoad={onMapLoad} onClick={() => setSelectedPin(null)}>
-              {listings.map((listing) => (
-                <MarkerF key={listing._id} position={{ lat: listing.Latitude, lng: listing.Longitude }}
-                  icon={pinIcon(hoveredId === listing._id || selectedPin?._id === listing._id)}
-                  onMouseOver={() => setHoveredId(listing._id)} onMouseOut={() => setHoveredId(null)}
-                  onClick={() => setSelectedPin(selectedPin?._id === listing._id ? null : listing)} />
-              ))}
-              {selectedPin && (
-                <InfoWindowF position={{ lat: selectedPin.Latitude, lng: selectedPin.Longitude }} onCloseClick={() => setSelectedPin(null)} options={{ pixelOffset: new google.maps.Size(0, -30) }}>
-                  <div className="w-64 font-sans">
-                    {selectedPin.MainImage && (
-                      <div className="relative h-32 -mx-3 -mt-3 mb-3 overflow-hidden rounded-t-lg">
-                        <img src={selectedPin.MainImage} alt={selectedPin.Address} className="w-full h-full object-cover" />
-                        <div className="absolute bottom-2 left-2"><span className="px-2 py-0.5 rounded-md text-xs font-bold text-white" style={{ background: "#1a1a1a" }}>{formatPrice(selectedPin.Price)}</span></div>
-                      </div>
-                    )}
-                    <h3 className="font-semibold text-gray-900 text-sm mb-0.5">{selectedPin.Address}</h3>
-                    <p className="text-xs text-gray-500 mb-2">{selectedPin.City}, {selectedPin.Province}</p>
-                    <div className="flex items-center gap-3 text-xs text-gray-600 mb-3">
-                      <span className="flex items-center gap-1"><Bed size={11} /> {selectedPin.Bedrooms} beds</span>
-                      <span className="flex items-center gap-1"><Bath size={11} /> {selectedPin.Bathrooms} baths</span>
-                    </div>
-                    <Link href={`/listings/${selectedPin._id}`} className="block w-full py-1.5 text-center text-xs font-semibold text-white rounded-lg" style={{ background: "#1a1a1a" }}>View Details →</Link>
-                  </div>
-                </InfoWindowF>
-              )}
-            </GoogleMap>
+          ) : (
+            <MapView listings={listings} hoveredId={hoveredId} setHoveredId={setHoveredId} selectedPin={selectedPin} setSelectedPin={setSelectedPin} mapRef={mapRef} />
           )}
         </div>
       </div>

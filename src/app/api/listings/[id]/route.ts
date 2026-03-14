@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import https from "https";
 import { Listing } from "@/lib/types";
+import { getPropertyByKey, fromDdfId, DdfError } from "@/lib/ddf";
 
 const INCOM_API = process.env.NEXT_PUBLIC_INCOM_API_URL ?? "https://api.ca.incomrealestate.com";
 const BROKER_DOMAIN = process.env.INCOM_BROKER_DOMAIN ?? "https://www.priderealty.ca";
@@ -119,8 +120,17 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const token = await getToken();
 
+    // DDF listings: id is "ddf-{ListingKey}"
+    const ddfKey = fromDdfId(id);
+    if (ddfKey) {
+      const listing = await getPropertyByKey(ddfKey);
+      if (!listing) return NextResponse.json({ error: "Listing not found" }, { status: 404 });
+      return NextResponse.json(listing);
+    }
+
+    // INCOM listings
+    const token = await getToken();
     const { body, status } = await httpsRequest(
       `${INCOM_API}/properties/${id}`,
       "GET",
@@ -135,6 +145,11 @@ export async function GET(
 
     return NextResponse.json(mapListing(raw));
   } catch (err) {
+    if (err instanceof DdfError) {
+      if (err.code === "AUTH") return NextResponse.json({ error: "Authentication failed" }, { status: 401 });
+      if (err.code === "RATE_LIMIT") return NextResponse.json({ error: "Rate limited" }, { status: 429 });
+      if (err.code === "CONFIG") return NextResponse.json({ error: "DDF not configured" }, { status: 503 });
+    }
     console.error("Listing fetch error:", err);
     return NextResponse.json({ error: "Failed to fetch listing" }, { status: 500 });
   }

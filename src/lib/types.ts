@@ -43,6 +43,7 @@ export interface SearchFilters {
   priceMax: number;
   sortby: string;
   propertyType?: string;
+  area?: string;
   page: number;
   limit: number;
 }

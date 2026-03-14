@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import https from "https";
+import { getPropertyByKey, fromDdfId } from "@/lib/ddf";
 
 const INCOM_API = process.env.NEXT_PUBLIC_INCOM_API_URL ?? "https://api.ca.incomrealestate.com";
 const BROKER_DOMAIN = process.env.INCOM_BROKER_DOMAIN ?? "https://www.priderealty.ca";
@@ -54,6 +55,20 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
+
+    // DDF listings: id is "ddf-{ListingKey}"
+    const ddfKey = fromDdfId(id);
+    if (ddfKey) {
+      const listing = await getPropertyByKey(ddfKey);
+      if (!listing) return NextResponse.json({ image: null, total: 0 }, { status: 404 });
+      const images = listing.Images?.length ? listing.Images : (listing.MainImage ? [listing.MainImage] : []);
+      return NextResponse.json(
+        { image: listing.MainImage ?? images[0] ?? null, total: images.length },
+        { headers: { "Cache-Control": "public, max-age=600" } }
+      );
+    }
+
+    // INCOM listings
     const token = await getToken();
     const { body, status } = await httpsRequest(
       `${INCOM_API}/properties/${id}`, "GET", undefined, { "Access-Token": token }
@@ -63,7 +78,6 @@ export async function GET(
       return NextResponse.json({ image: null, total: 0 }, { status: 404 });
     }
     const images = (raw.images ?? []) as string[];
-    // Cache image URL for 10 minutes in browser
     return NextResponse.json(
       { image: images[0] ?? null, total: images.length },
       { headers: { "Cache-Control": "public, max-age=600" } }

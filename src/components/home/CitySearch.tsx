@@ -3,12 +3,12 @@
 import { useRouter } from "next/navigation";
 
 const cities = [
-  { name: "Toronto",     image: "https://picsum.photos/id/1029/600/400", listings: "2,400+" },
-  { name: "Mississauga", image: "https://picsum.photos/id/164/600/400",  listings: "680+"   },
-  { name: "Brampton",    image: "https://picsum.photos/id/106/600/400",  listings: "520+"   },
-  { name: "Oakville",    image: "https://picsum.photos/id/137/600/400",  listings: "310+"   },
-  { name: "Vaughan",     image: "https://picsum.photos/id/65/600/400",   listings: "290+"   },
-  { name: "Markham",     image: "https://picsum.photos/id/42/600/400",   listings: "350+"   },
+  { name: "Brampton",     image: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600&h=400&fit=crop", listings: "520+" },
+  { name: "Mississauga",  image: "https://images.unsplash.com/photo-1506929562872-bb421503ef21?w=600&h=400&fit=crop", listings: "680+"  },
+  { name: "Milton",       image: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600&h=400&fit=crop", listings: "340+"  },
+  { name: "Caledon",      image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=600&h=400&fit=crop", listings: "270+"  },
+  { name: "Georgetown",   image: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&h=400&fit=crop", listings: "310+"  },
+  { name: "Bolton",       image: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=600&h=400&fit=crop", listings: "220+"  },
 ];
 
 export default function CitySearch() {
