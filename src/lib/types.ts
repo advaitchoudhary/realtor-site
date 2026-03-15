@@ -65,6 +65,7 @@ export interface Inquiry {
   listingAddress?: string;
   listingPrice?: number;
   type: "general" | "listing" | "valuation" | "buyer";
+  source?: "contact" | "listing" | "home-value" | "mortgage" | "affordability" | "land-transfer-tax" | "other";
   status: "new" | "contacted" | "closed";
   createdAt: string;
   notes?: string;

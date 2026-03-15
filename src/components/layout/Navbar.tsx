@@ -20,6 +20,16 @@ const navLinks = [
   },
   { label: "Map Search", href: "/listings/map" },
   { label: "Neighbourhoods", href: "/neighbourhoods" },
+  {
+    label: "Tools",
+    href: "/tools",
+    children: [
+      { label: "Mortgage Calculator", href: "/tools/mortgage-calculator" },
+      { label: "Affordability Calculator", href: "/tools/affordability-calculator" },
+      { label: "Land Transfer Tax", href: "/tools/land-transfer-tax" },
+      { label: "Home Value Estimator", href: "/tools/home-value-estimator" },
+    ],
+  },
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },
 ];

@@ -1,15 +1,34 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
+import fs from "fs";
+import path from "path";
+
+const DATA_FILE = path.join(process.cwd(), "data", "inquiries.json");
+
+function readInquiries() {
+  try {
+    const raw = fs.readFileSync(DATA_FILE, "utf-8");
+    return JSON.parse(raw);
+  } catch {
+    return [];
+  }
+}
+
+function writeInquiries(data: unknown[]) {
+  const dir = path.dirname(DATA_FILE);
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
+}
 
 export async function GET() {
-  // No persistent storage on serverless — return empty array
-  return NextResponse.json([]);
+  const inquiries = readInquiries();
+  return NextResponse.json(inquiries);
 }
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { name, email, phone, message, type, listingAddress } = body;
+    const { name, email, phone, message, type, listingAddress, source } = body;
 
     const inquiry = {
       id: `inq-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
@@ -18,12 +37,19 @@ export async function POST(req: NextRequest) {
       createdAt: new Date().toISOString(),
     };
 
+    // Persist to file
+    const existing = readInquiries();
+    existing.unshift(inquiry);
+    writeInquiries(existing);
+
     // Send email notification if API key is configured
     if (process.env.RESEND_API_KEY) {
       const resend = new Resend(process.env.RESEND_API_KEY);
+
+      const sourceLabel = source ? ` (via ${source})` : "";
       const subject = listingAddress
-        ? `New Inquiry — ${listingAddress}`
-        : `New ${type ?? "General"} Inquiry from ${name}`;
+        ? `New Inquiry — ${listingAddress}${sourceLabel}`
+        : `New ${type ?? "General"} Inquiry from ${name}${sourceLabel}`;
 
       await resend.emails.send({
         from: "inquiries@manojchaudhary.ca",
@@ -42,6 +68,7 @@ export async function POST(req: NextRequest) {
                 <tr><td style="padding: 8px 0; color: #6b7280; font-size: 13px;">Email</td><td style="padding: 8px 0; font-weight: 600; color: #111827;"><a href="mailto:${email}" style="color: #C9A84C;">${email ?? "—"}</a></td></tr>
                 <tr><td style="padding: 8px 0; color: #6b7280; font-size: 13px;">Phone</td><td style="padding: 8px 0; font-weight: 600; color: #111827;">${phone ?? "—"}</td></tr>
                 <tr><td style="padding: 8px 0; color: #6b7280; font-size: 13px;">Type</td><td style="padding: 8px 0; font-weight: 600; color: #111827; text-transform: capitalize;">${type ?? "General"}</td></tr>
+                ${source ? `<tr><td style="padding: 8px 0; color: #6b7280; font-size: 13px;">Source</td><td style="padding: 8px 0; font-weight: 600; color: #111827; text-transform: capitalize;">${source}</td></tr>` : ""}
                 ${listingAddress ? `<tr><td style="padding: 8px 0; color: #6b7280; font-size: 13px;">Listing</td><td style="padding: 8px 0; font-weight: 600; color: #111827;">${listingAddress}</td></tr>` : ""}
               </table>
               <div style="margin-top: 24px; padding: 16px; background: #f9fafb; border-radius: 8px; border-left: 3px solid #C9A84C;">

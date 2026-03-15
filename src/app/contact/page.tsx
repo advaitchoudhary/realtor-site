@@ -69,7 +69,7 @@ export default function ContactPage() {
         <div className="lg:col-span-3 bg-white rounded-3xl p-8 border border-gray-100 shadow-sm">
           <h3 className="text-xl font-bold text-[var(--primary)] mb-2">Send a Message</h3>
           <p className="text-sm text-gray-500 mb-6">We typically respond within 2 hours during business hours.</p>
-          <ContactForm type="general" />
+          <ContactForm type="general" source="contact" />
         </div>
       </div>
     </div>

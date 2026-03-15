@@ -11,9 +11,10 @@ interface Props {
   listingAddress?: string;
   listingPrice?: number;
   type?: "general" | "listing" | "valuation" | "buyer";
+  source?: "contact" | "listing" | "home-value" | "mortgage" | "affordability" | "land-transfer-tax" | "other";
 }
 
-export default function ContactForm({ compact, defaultMessage, listingId, listingAddress, listingPrice, type = "listing" }: Props) {
+export default function ContactForm({ compact, defaultMessage, listingId, listingAddress, listingPrice, type = "listing", source }: Props) {
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -46,6 +47,7 @@ export default function ContactForm({ compact, defaultMessage, listingId, listin
           listingId,
           listingAddress,
           listingPrice,
+          source: source ?? (listingId ? "listing" : "contact"),
         }),
       });
       setStatus("success");
