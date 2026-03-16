@@ -110,9 +110,19 @@ function buildQuery(search: Record<string, unknown>): Record<string, unknown> {
 
   const listingType = search.listingType as string[];
   if (listingType?.length === 1) {
-    query.listingType = listingType[0];
+    const t = listingType[0];
+    // Some upstream feeds use different values for rentals.
+    // We broaden Lease queries to common synonyms to avoid false-zero results.
+    if (t?.toLowerCase() === "lease") {
+      query.listingType = { $in: ["Lease", "lease", "Rent", "rent", "Rental", "rental"] };
+    } else if (t) {
+      query.listingType = t;
+    }
   } else if (listingType && listingType.length > 1) {
-    query.listingType = { $in: listingType };
+    const normalized = listingType.flatMap((t) =>
+      t?.toLowerCase() === "lease" ? ["Lease", "lease", "Rent", "rent", "Rental", "rental"] : [t]
+    );
+    query.listingType = { $in: normalized.filter(Boolean) };
   }
 
   query.searchType = (search.searchType as string) || "residential";

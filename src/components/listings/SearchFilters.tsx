@@ -39,10 +39,8 @@ const propertyTypes = [
 
 const AREAS = ["Brampton", "Mississauga", "Milton", "Caledon", "Georgetown", "Bolton"];
 
-export default function SearchFiltersPanel({ filters, onChange, totalCount }: Props) {
-  const [showMobile, setShowMobile] = useState(false);
-
-  const FilterContent = () => (
+function FiltersContent({ filters, onChange }: Pick<Props, "filters" | "onChange">) {
+  return (
     <div className="space-y-6">
       {/* Listing Type */}
       <div>
@@ -220,6 +218,10 @@ export default function SearchFiltersPanel({ filters, onChange, totalCount }: Pr
       </button>
     </div>
   );
+}
+
+export default function SearchFiltersPanel({ filters, onChange, totalCount }: Props) {
+  const [showMobile, setShowMobile] = useState(false);
 
   return (
     <>
@@ -235,7 +237,7 @@ export default function SearchFiltersPanel({ filters, onChange, totalCount }: Pr
               {totalCount} results
             </span>
           </div>
-          <FilterContent />
+          <FiltersContent filters={filters} onChange={onChange} />
         </div>
       </aside>
 
@@ -261,7 +263,7 @@ export default function SearchFiltersPanel({ filters, onChange, totalCount }: Pr
                 <button onClick={() => setShowMobile(false)}><X size={20} /></button>
               </div>
               <div className="p-5">
-                <FilterContent />
+                <FiltersContent filters={filters} onChange={onChange} />
               </div>
               <div className="p-5 border-t">
                 <button

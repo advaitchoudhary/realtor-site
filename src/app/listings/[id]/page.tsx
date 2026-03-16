@@ -6,7 +6,7 @@ import { formatPrice, formatArea } from "@/lib/utils";
 import Link from "next/link";
 import {
   Bed, Bath, Car, Maximize2, MapPin, Calendar, Home,
-  Share2, Heart, ChevronLeft, ChevronRight, Phone, Mail, ExternalLink
+  Share2, Heart, ChevronLeft, ChevronRight, Phone, Mail, ExternalLink, X
 } from "lucide-react";
 import ContactForm from "@/components/contact/ContactForm";
 import { siteConfig } from "@/lib/config";
@@ -17,6 +17,7 @@ export default function ListingDetailPage({ params }: { params: Promise<{ id: st
   const [loading, setLoading] = useState(true);
   const [imgIdx, setImgIdx] = useState(0);
   const [saved, setSaved] = useState(false);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
 
   useEffect(() => {
     fetch(`/api/listings/${id}`)
@@ -53,6 +54,7 @@ export default function ListingDetailPage({ params }: { params: Promise<{ id: st
   }
 
   const images = listing.Images?.length ? listing.Images : [listing.MainImage];
+  const pricePerSqft = listing.Area > 0 ? Math.round(listing.Price / listing.Area) : null;
 
   return (
     <div className="min-h-screen bg-gray-50 pt-20">
@@ -73,7 +75,8 @@ export default function ListingDetailPage({ params }: { params: Promise<{ id: st
           <img
             src={images[imgIdx] || "https://picsum.photos/id/1029/1200/600"}
             alt={listing.Address}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover cursor-zoom-in"
+            onClick={() => setLightboxOpen(true)}
           />
           {/* Controls */}
           {images.length > 1 && (
@@ -131,12 +134,56 @@ export default function ListingDetailPage({ params }: { params: Promise<{ id: st
             {images.map((img, i) => (
               <button
                 key={i}
-                onClick={() => setImgIdx(i)}
+                onClick={() => { setImgIdx(i); setLightboxOpen(true); }}
                 className={`shrink-0 w-24 h-16 rounded-xl overflow-hidden border-2 transition-all ${i === imgIdx ? "border-[var(--accent)]" : "border-transparent opacity-70"}`}
               >
                 <img src={img} alt="" className="w-full h-full object-cover" />
               </button>
             ))}
+          </div>
+        )}
+
+        {/* Fullscreen lightbox */}
+        {lightboxOpen && (
+          <div className="fixed inset-0 z-50 bg-black/90 flex flex-col">
+            <button
+              onClick={() => setLightboxOpen(false)}
+              className="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/70 flex items-center justify-center text-white hover:bg-black transition-colors"
+            >
+              <X size={20} />
+            </button>
+            <div className="flex-1 flex items-center justify-center px-4">
+              <button
+                onClick={() => setImgIdx((i) => (i - 1 + images.length) % images.length)}
+                className="hidden sm:flex w-10 h-10 mr-4 rounded-full bg-white/20 text-white items-center justify-center hover:bg-white/40 transition-colors"
+              >
+                <ChevronLeft size={22} />
+              </button>
+              <img
+                src={images[imgIdx]}
+                alt={listing.Address}
+                className="max-h-[90vh] max-w-full object-contain rounded-xl shadow-2xl"
+              />
+              <button
+                onClick={() => setImgIdx((i) => (i + 1) % images.length)}
+                className="hidden sm:flex w-10 h-10 ml-4 rounded-full bg-white/20 text-white items-center justify-center hover:bg-white/40 transition-colors"
+              >
+                <ChevronRight size={22} />
+              </button>
+            </div>
+            {images.length > 1 && (
+              <div className="pb-4 px-6 flex gap-2 justify-center overflow-x-auto">
+                {images.map((img, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setImgIdx(i)}
+                    className={`shrink-0 w-16 h-12 rounded-md overflow-hidden border-2 transition-all ${i === imgIdx ? "border-[var(--accent)]" : "border-transparent opacity-60"}`}
+                  >
+                    <img src={img} alt="" className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
@@ -188,9 +235,10 @@ export default function ListingDetailPage({ params }: { params: Promise<{ id: st
                   { label: "Style", value: listing.Style },
                   { label: "Year Built", value: listing.YearBuilt || "—" },
                   { label: "MLS Number", value: listing.MLS },
-                  { label: "Lot Frontage", value: listing.LotFrontage ? `${listing.LotFrontage} ft` : "—" },
-                  { label: "Lot Depth", value: listing.LotDepth ? `${listing.LotDepth} ft` : "—" },
+                  { label: "Square Footage", value: listing.Area > 0 ? formatArea(listing.Area) : "—" },
+                  { label: "Parking", value: listing.Parking > 0 ? `${listing.Parking} spot${listing.Parking > 1 ? "s" : ""}` : "—" },
                   { label: "Days on Market", value: `${listing.DaysOnMarket} days` },
+                  { label: "Price / Sq Ft", value: pricePerSqft ? `$${pricePerSqft.toLocaleString()}` : "—" },
                   { label: "Listing Type", value: `For ${listing.ListingType}` },
                 ].map((d) => (
                   <div key={d.label}>
