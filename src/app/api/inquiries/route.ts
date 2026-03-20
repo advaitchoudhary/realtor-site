@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { getAllInquiries, appendInquiry } from "@/lib/sheets";
+import { isAdminAuthenticated, escapeHtml } from "@/lib/auth";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  if (!isAdminAuthenticated(req)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   try {
     const inquiries = await getAllInquiries();
     return NextResponse.json(inquiries);
@@ -16,6 +20,17 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { name, email, phone, message, type, listingAddress, source } = body;
+
+    // Server-side validation
+    if (!name || typeof name !== "string" || name.trim().length < 2) {
+      return NextResponse.json({ error: "Valid name is required" }, { status: 400 });
+    }
+    if (!email || typeof email !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return NextResponse.json({ error: "Valid email is required" }, { status: 400 });
+    }
+    if (!phone || typeof phone !== "string" || phone.trim().length < 7) {
+      return NextResponse.json({ error: "Valid phone is required" }, { status: 400 });
+    }
 
     const inquiry = {
       id: `inq-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
@@ -48,15 +63,15 @@ export async function POST(req: NextRequest) {
             </div>
             <div style="padding: 32px; background: #ffffff; border: 1px solid #e5e7eb;">
               <table style="width: 100%; border-collapse: collapse;">
-                <tr><td style="padding: 8px 0; color: #6b7280; font-size: 13px; width: 120px;">Name</td><td style="padding: 8px 0; font-weight: 600; color: #111827;">${name ?? "—"}</td></tr>
-                <tr><td style="padding: 8px 0; color: #6b7280; font-size: 13px;">Email</td><td style="padding: 8px 0; font-weight: 600; color: #111827;"><a href="mailto:${email}" style="color: #C9A84C;">${email ?? "—"}</a></td></tr>
-                <tr><td style="padding: 8px 0; color: #6b7280; font-size: 13px;">Phone</td><td style="padding: 8px 0; font-weight: 600; color: #111827;">${phone ?? "—"}</td></tr>
-                <tr><td style="padding: 8px 0; color: #6b7280; font-size: 13px;">Type</td><td style="padding: 8px 0; font-weight: 600; color: #111827; text-transform: capitalize;">${type ?? "General"}</td></tr>
-                ${source ? `<tr><td style="padding: 8px 0; color: #6b7280; font-size: 13px;">Source</td><td style="padding: 8px 0; font-weight: 600; color: #111827; text-transform: capitalize;">${source}</td></tr>` : ""}
-                ${listingAddress ? `<tr><td style="padding: 8px 0; color: #6b7280; font-size: 13px;">Listing</td><td style="padding: 8px 0; font-weight: 600; color: #111827;">${listingAddress}</td></tr>` : ""}
+                <tr><td style="padding: 8px 0; color: #6b7280; font-size: 13px; width: 120px;">Name</td><td style="padding: 8px 0; font-weight: 600; color: #111827;">${escapeHtml(name)}</td></tr>
+                <tr><td style="padding: 8px 0; color: #6b7280; font-size: 13px;">Email</td><td style="padding: 8px 0; font-weight: 600; color: #111827;"><a href="mailto:${escapeHtml(email)}" style="color: #C9A84C;">${escapeHtml(email)}</a></td></tr>
+                <tr><td style="padding: 8px 0; color: #6b7280; font-size: 13px;">Phone</td><td style="padding: 8px 0; font-weight: 600; color: #111827;">${escapeHtml(phone)}</td></tr>
+                <tr><td style="padding: 8px 0; color: #6b7280; font-size: 13px;">Type</td><td style="padding: 8px 0; font-weight: 600; color: #111827; text-transform: capitalize;">${escapeHtml(type ?? "General")}</td></tr>
+                ${source ? `<tr><td style="padding: 8px 0; color: #6b7280; font-size: 13px;">Source</td><td style="padding: 8px 0; font-weight: 600; color: #111827; text-transform: capitalize;">${escapeHtml(source)}</td></tr>` : ""}
+                ${listingAddress ? `<tr><td style="padding: 8px 0; color: #6b7280; font-size: 13px;">Listing</td><td style="padding: 8px 0; font-weight: 600; color: #111827;">${escapeHtml(listingAddress)}</td></tr>` : ""}
               </table>
               <div style="margin-top: 24px; padding: 16px; background: #f9fafb; border-radius: 8px; border-left: 3px solid #C9A84C;">
-                <p style="margin: 0; color: #374151; font-size: 14px; line-height: 1.6;">${message ?? "No message provided."}</p>
+                <p style="margin: 0; color: #374151; font-size: 14px; line-height: 1.6;">${escapeHtml(message)}</p>
               </div>
             </div>
             <div style="padding: 16px 32px; background: #f9fafb; text-align: center;">

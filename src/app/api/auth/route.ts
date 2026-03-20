@@ -1,10 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import crypto from "crypto";
-
-function generateToken(secret: string) {
-  const payload = `${Date.now()}-${secret}`;
-  return crypto.createHash("sha256").update(payload).digest("hex");
-}
+import { generateSecureToken } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
   try {
@@ -12,7 +7,6 @@ export async function POST(req: NextRequest) {
 
     const adminUser = process.env.ADMIN_USERNAME;
     const adminPass = process.env.ADMIN_PASSWORD;
-    const adminSecret = process.env.ADMIN_SECRET ?? "fallback-secret";
 
     if (!adminUser || !adminPass) {
       return NextResponse.json(
@@ -28,7 +22,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const token = generateToken(adminSecret);
+    const token = generateSecureToken();
 
     const response = NextResponse.json({ success: true });
 

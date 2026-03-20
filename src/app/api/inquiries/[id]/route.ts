@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAllInquiries, updateInquiryById, deleteInquiryById } from "@/lib/sheets";
+import { isAdminAuthenticated } from "@/lib/auth";
+
+const unauthorized = () => NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  if (!isAdminAuthenticated(req)) return unauthorized();
   const { id } = await params;
   try {
     const inquiries = await getAllInquiries();
@@ -21,6 +25,7 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  if (!isAdminAuthenticated(req)) return unauthorized();
   const { id } = await params;
   try {
     const updates = await req.json();
@@ -34,9 +39,10 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  if (!isAdminAuthenticated(req)) return unauthorized();
   const { id } = await params;
   try {
     const deleted = await deleteInquiryById(id);

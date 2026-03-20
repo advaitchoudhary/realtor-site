@@ -76,8 +76,8 @@ export const neighbourhoods: Neighbourhood[] = [
     tagline: "Ontario's Urban Gem on Lake Ontario",
     description:
       "Mississauga is Ontario's third-largest city, offering a dynamic urban lifestyle with a stunning Lake Ontario waterfront, a vibrant city centre, and excellent schools. Port Credit, Streetsville, and Lakeview are among the most sought-after neighbourhoods. With world-class amenities, diverse dining, and close proximity to Toronto and Pearson Airport, Mississauga is ideal for professionals and families alike.",
-    heroImage: "https://images.unsplash.com/photo-1506929562872-bb421503ef21?w=1920&h=800&fit=crop",
-    cardImage: "https://images.unsplash.com/photo-1506929562872-bb421503ef21?w=600&h=400&fit=crop",
+    heroImage: "https://images.unsplash.com/photo-1486325212027-8081e485255e?w=1920&h=800&fit=crop",
+    cardImage: "https://images.unsplash.com/photo-1486325212027-8081e485255e?w=600&h=400&fit=crop",
     avgPrice: "$1,100,000",
     priceRange: "$550K – $3M+",
     population: "720,000+",
@@ -214,8 +214,8 @@ export const neighbourhoods: Neighbourhood[] = [
     tagline: "Historic Charm with Small-Town Warmth",
     description:
       "Georgetown is the urban centre of Halton Hills, blending a vibrant historic downtown with established residential neighbourhoods and newer subdivisions. The Credit River runs through the town, offering scenic trails and parks. Georgetown residents enjoy a tight-knit community feel, excellent schools, and easy GO Train access to Toronto — making it ideal for families and commuters.",
-    heroImage: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1920&h=800&fit=crop",
-    cardImage: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&h=400&fit=crop",
+    heroImage: "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1920&h=800&fit=crop",
+    cardImage: "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=600&h=400&fit=crop",
     avgPrice: "$1,025,000",
     priceRange: "$700K – $2M",
     population: "42,000+",
@@ -259,8 +259,8 @@ export const neighbourhoods: Neighbourhood[] = [
     tagline: "Small Town Feel with Big GTA Convenience",
     description:
       "Bolton is a welcoming community in the south of Caledon, offering a relaxed small-town atmosphere with excellent access to Highway 427 and the 400 series highways. It's known for its tight-knit community, local shops and restaurants along King Street, and a range of housing from affordable townhomes to executive detached homes — all with more space than you'd find in the city.",
-    heroImage: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1920&h=800&fit=crop",
-    cardImage: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=600&h=400&fit=crop",
+    heroImage: "https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=1920&h=800&fit=crop",
+    cardImage: "https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=600&h=400&fit=crop",
     avgPrice: "$1,000,000",
     priceRange: "$700K – $1.8M",
     population: "27,000+",
