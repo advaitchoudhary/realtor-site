@@ -1,47 +1,114 @@
 import Link from "next/link";
+import { MapPin, TrendingUp, Users, ArrowRight } from "lucide-react";
+import { neighbourhoods } from "@/lib/neighbourhoods";
 
-export const metadata = { title: "Neighbourhoods" };
-
-const neighbourhoods = [
-  { name: "Brampton",     city: "Brampton",  desc: "A diverse city with parks, heritage sites and family-friendly neighbourhoods.",           image: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600&h=400&fit=crop", listings: 42 },
-  { name: "Mississauga",  city: "Mississauga", desc: "Ontario's third-largest city with Lake Ontario waterfront and vibrant urban core.",  image: "https://images.unsplash.com/photo-1506929562872-bb421503ef21?w=600&h=400&fit=crop", listings: 58 },
-  { name: "Milton",       city: "Milton",   desc: "Growing town at the Niagara Escarpment with scenic trails and strong community.",   image: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600&h=400&fit=crop", listings: 34 },
-  { name: "Caledon",      city: "Caledon",  desc: "Rural charm with rolling hills, conservation areas and equestrian estates.",        image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=600&h=400&fit=crop", listings: 27 },
-  { name: "Georgetown",   city: "Georgetown", desc: "Historic Halton Hills town with a charming downtown and excellent schools.",      image: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&h=400&fit=crop", listings: 31 },
-  { name: "Bolton",       city: "Bolton",   desc: "Friendly community in Caledon with local shops, parks and easy commuter access.",   image: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=600&h=400&fit=crop", listings: 22 },
-];
+export const metadata = { title: "Neighbourhood Guides" };
 
 export default function NeighbourhoodsPage() {
   return (
     <div className="min-h-screen pt-20 bg-gray-50">
-      <div className="py-16 text-white text-center" style={{ background: "var(--primary)" }}>
-        <p className="text-sm font-semibold uppercase tracking-widest mb-3" style={{ color: "var(--accent)" }}>Explore</p>
-        <h1 className="text-4xl lg:text-5xl font-bold mb-4">Neighbourhoods</h1>
-        <p className="text-white/70 max-w-xl mx-auto">Discover the unique character of Ontario&apos;s best communities.</p>
+      {/* Hero */}
+      <div className="py-20 text-white text-center relative overflow-hidden" style={{ background: "var(--primary)" }}>
+        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-white to-transparent" />
+        <div className="relative z-10">
+          <p className="text-sm font-semibold uppercase tracking-widest mb-3" style={{ color: "var(--accent)" }}>
+            Explore Ontario
+          </p>
+          <h1 className="text-4xl lg:text-6xl font-bold mb-4">Neighbourhood Guides</h1>
+          <p className="text-white/70 max-w-2xl mx-auto text-lg">
+            In-depth guides to the best communities in the GTA — schools, transit, lifestyle, and average prices.
+          </p>
+        </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 lg:px-10 py-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {neighbourhoods.map((n) => (
-          <Link key={n.name} href={`/listings?city=${encodeURIComponent(n.city)}&type=Sale`} className="group block">
-            <div className="listing-card bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm">
-              <div className="relative overflow-hidden aspect-video">
-                <img src={n.image} alt={n.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                <div className="absolute bottom-3 left-3 text-white">
-                  <div className="font-bold text-lg">{n.name}</div>
-                  <div className="text-sm text-white/80">{n.city}</div>
+      {/* Grid */}
+      <div className="max-w-7xl mx-auto px-6 lg:px-10 py-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {neighbourhoods.map((n) => (
+            <Link key={n.slug} href={`/neighbourhoods/${n.slug}`} className="group block">
+              <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                {/* Image */}
+                <div className="relative overflow-hidden aspect-video">
+                  <img
+                    src={n.cardImage}
+                    alt={n.name}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-4">
+                    <div className="font-bold text-xl text-white">{n.name}</div>
+                    <div className="flex items-center gap-1 text-white/80 text-sm mt-0.5">
+                      <MapPin size={12} />
+                      {n.region}
+                    </div>
+                  </div>
+                  <div
+                    className="absolute top-3 right-3 text-xs font-bold px-3 py-1 rounded-full text-white"
+                    style={{ background: "var(--accent)" }}
+                  >
+                    Avg {n.avgPrice}
+                  </div>
+                </div>
+
+                {/* Content */}
+                <div className="p-5">
+                  <p className="text-sm text-gray-600 leading-relaxed mb-4 line-clamp-2">{n.tagline}</p>
+
+                  {/* Stats row */}
+                  <div className="flex items-center gap-4 mb-4 text-xs text-gray-500">
+                    <span className="flex items-center gap-1">
+                      <Users size={12} style={{ color: "var(--primary)" }} />
+                      {n.population}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <TrendingUp size={12} style={{ color: "var(--primary)" }} />
+                      {n.stats.find((s) => s.label === "Price Growth (1yr)")?.value} growth
+                    </span>
+                  </div>
+
+                  {/* Lifestyle tags */}
+                  <div className="flex flex-wrap gap-1.5 mb-4">
+                    {n.lifestyle.slice(0, 3).map((tag) => (
+                      <span
+                        key={tag}
+                        className="text-[11px] font-medium px-2.5 py-1 rounded-full"
+                        style={{ background: "var(--secondary)", color: "var(--primary)" }}
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div
+                    className="flex items-center gap-1 text-sm font-semibold group-hover:gap-2 transition-all"
+                    style={{ color: "var(--primary)" }}
+                  >
+                    View Full Guide <ArrowRight size={15} />
+                  </div>
                 </div>
               </div>
-              <div className="p-4">
-                <p className="text-sm text-gray-600 leading-relaxed mb-3">{n.desc}</p>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-[var(--primary)]">{n.listings} listings</span>
-                  <span className="text-xs text-[var(--accent)] font-medium group-hover:underline">View listings →</span>
-                </div>
-              </div>
-            </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      {/* CTA */}
+      <div className="bg-white border-t border-gray-100 py-16">
+        <div className="max-w-3xl mx-auto text-center px-6">
+          <h2 className="text-2xl font-bold mb-3" style={{ color: "var(--primary)" }}>
+            Not sure which neighbourhood is right for you?
+          </h2>
+          <p className="text-gray-500 mb-6">
+            Book a free consultation with Manoj and get personalized recommendations based on your budget and lifestyle.
+          </p>
+          <Link
+            href="/contact"
+            className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full text-white font-semibold transition-opacity hover:opacity-90"
+            style={{ background: "var(--primary)" }}
+          >
+            Get Free Consultation
           </Link>
-        ))}
+        </div>
       </div>
     </div>
   );

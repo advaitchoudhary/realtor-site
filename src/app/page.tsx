@@ -1,11 +1,12 @@
 import HeroSection from "@/components/home/HeroSection";
 import StatsBar from "@/components/home/StatsBar";
 import FeaturedListings from "@/components/home/FeaturedListings";
-import CitySearch from "@/components/home/CitySearch";
 import AgentSection from "@/components/home/AgentSection";
 import TestimonialsSection from "@/components/home/TestimonialsSection";
 import CTASection from "@/components/home/CTASection";
+import YouTubeSection from "@/components/home/YouTubeSection";
 import LeadCaptureModal from "@/components/home/LeadCaptureModal";
+import NeighbourhoodSection from "@/components/home/NeighbourhoodSection";
 
 export default function HomePage() {
   return (
@@ -14,7 +15,8 @@ export default function HomePage() {
       <HeroSection />
       <StatsBar />
       <FeaturedListings />
-      <CitySearch />
+      <NeighbourhoodSection />
+      <YouTubeSection />
       <AgentSection />
       <TestimonialsSection />
       <CTASection />
