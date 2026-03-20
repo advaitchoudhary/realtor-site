@@ -5,10 +5,12 @@ import CitySearch from "@/components/home/CitySearch";
 import AgentSection from "@/components/home/AgentSection";
 import TestimonialsSection from "@/components/home/TestimonialsSection";
 import CTASection from "@/components/home/CTASection";
+import LeadCaptureModal from "@/components/home/LeadCaptureModal";
 
 export default function HomePage() {
   return (
     <>
+      <LeadCaptureModal />
       <HeroSection />
       <StatsBar />
       <FeaturedListings />
