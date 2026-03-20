@@ -1,10 +1,17 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Search, MapPin, ChevronDown } from "lucide-react";
 import { siteConfig } from "@/lib/config";
 import { useJsApiLoader, Autocomplete } from "@react-google-maps/api";
+
+const HERO_IMAGES = [
+  "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1920&q=85",
+  "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=1920&q=85",
+  "https://images.unsplash.com/photo-1600210492493-0946911123ea?w=1920&q=85",
+  "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1920&q=85",
+];
 
 const popularCities = ["Brampton", "Mississauga", "Milton", "Caledon", "Georgetown", "Bolton"];
 const LIBRARIES: ("places")[] = ["places"];
@@ -14,6 +21,14 @@ export default function HeroSection() {
   const [searchText, setSearchText] = useState("");
   const [listingType, setListingType] = useState("Sale");
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
+  const [currentImage, setCurrentImage] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentImage((prev) => (prev + 1) % HERO_IMAGES.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
 
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY ?? "",
@@ -52,15 +67,34 @@ export default function HeroSection() {
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Background image */}
-      <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage: `url(https://images.unsplash.com/photo-1638454795595-0a0abf68614d?w=1920&q=85)`,
-        }}
-      />
+      {/* Background carousel */}
+      {HERO_IMAGES.map((src, i) => (
+        <div
+          key={src}
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-1000"
+          style={{
+            backgroundImage: `url(${src})`,
+            opacity: i === currentImage ? 1 : 0,
+          }}
+        />
+      ))}
       {/* Overlay */}
       <div className="absolute inset-0 hero-overlay" />
+
+      {/* Dot indicators */}
+      <div className="absolute bottom-16 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+        {HERO_IMAGES.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setCurrentImage(i)}
+            className="w-2 h-2 rounded-full transition-all"
+            style={{
+              background: i === currentImage ? "var(--accent)" : "rgba(255,255,255,0.4)",
+              transform: i === currentImage ? "scale(1.3)" : "scale(1)",
+            }}
+          />
+        ))}
+      </div>
 
       {/* Content */}
       <div className="relative z-10 w-full max-w-5xl mx-auto px-6 text-center pt-20">
