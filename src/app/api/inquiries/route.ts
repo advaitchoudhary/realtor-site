@@ -1,28 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
-import fs from "fs";
-import path from "path";
-
-const DATA_FILE = path.join(process.cwd(), "data", "inquiries.json");
-
-function readInquiries() {
-  try {
-    const raw = fs.readFileSync(DATA_FILE, "utf-8");
-    return JSON.parse(raw);
-  } catch {
-    return [];
-  }
-}
-
-function writeInquiries(data: unknown[]) {
-  const dir = path.dirname(DATA_FILE);
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
-}
+import { getAllInquiries, appendInquiry } from "@/lib/sheets";
 
 export async function GET() {
-  const inquiries = readInquiries();
-  return NextResponse.json(inquiries);
+  try {
+    const inquiries = await getAllInquiries();
+    return NextResponse.json(inquiries);
+  } catch (err) {
+    console.error("Failed to fetch inquiries:", err);
+    return NextResponse.json({ error: "Failed to fetch inquiries" }, { status: 500 });
+  }
 }
 
 export async function POST(req: NextRequest) {
@@ -37,10 +24,7 @@ export async function POST(req: NextRequest) {
       createdAt: new Date().toISOString(),
     };
 
-    // Persist to file
-    const existing = readInquiries();
-    existing.unshift(inquiry);
-    writeInquiries(existing);
+    await appendInquiry(inquiry);
 
     // Send email notification if API key is configured
     if (process.env.RESEND_API_KEY) {

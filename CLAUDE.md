@@ -18,7 +18,7 @@ This is a **Next.js App Router** real estate website that proxies property listi
 ### Key Data Flow
 
 - **Listings**: Client pages call internal `/api/listings/*` routes, which proxy to the external INCOM API (HTTPS with cert bypass). Search results are cached for 60 seconds. Listing images are also proxied through `/api/listings/[id]/image`.
-- **Inquiries**: Contact form submissions are stored in `/data/inquiries.json` (file-based, no database). The admin panel at `/admin` manages these inquiries via `/api/inquiries/*`.
+- **Inquiries**: Contact form submissions are persisted to **Google Sheets** via the Sheets API (`src/lib/sheets.ts`). The admin panel at `/admin` manages these inquiries via `/api/inquiries/*`. Required env vars: `GOOGLE_SHEETS_SPREADSHEET_ID`, `GOOGLE_SERVICE_ACCOUNT_EMAIL`, `GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY`.
 - **Configuration**: All site branding (agent name, phone, colors, etc.) and API keys come from `.env.local` via `src/lib/config.ts`.
 
 ### Structure
