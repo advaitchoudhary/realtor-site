@@ -224,7 +224,7 @@ export default function MapClient() {
   }
 
   return (
-    <div className="h-screen flex flex-col pt-20 overflow-hidden">
+    <div className="h-screen flex flex-col pt-16 lg:pt-28 overflow-hidden">
       <div className="bg-white border-b border-gray-100 shadow-sm z-30 px-4 py-3 flex flex-wrap items-center gap-3">
         <Link href="/listings" className="flex items-center gap-2 text-sm text-gray-600 hover:text-[var(--primary)] transition-colors shrink-0">
           <ArrowLeft size={16} /> Back to List
