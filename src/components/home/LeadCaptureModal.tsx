@@ -103,7 +103,7 @@ export default function LeadCaptureModal() {
 
   if (!open) return null;
 
-  const instagramUrl = siteConfig.social.instagram || "https://www.instagram.com/realtor.manojchaudhary?igsh=MTlmMW13emp3MDdsMA==";
+  const instagramUrl = siteConfig.social.instagram || "https://www.instagram.com/realtor.manojchaudhary/";
 
   return (
     <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
