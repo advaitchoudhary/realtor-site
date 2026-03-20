@@ -42,6 +42,19 @@ data/
   inquiries.json      # Persisted inquiry records
 ```
 
+### Admin Panel & Authentication
+
+- **Route**: `/admin` (`src/app/admin/page.tsx`) — client component, fully gated behind a login modal.
+- **Auth API**: `src/app/api/auth/route.ts`
+  - `POST /api/auth` — validates `{ username, password }` against `ADMIN_USERNAME` / `ADMIN_PASSWORD` env vars. On success, sets an `httpOnly` cookie `admin_token` (SHA-256 hash, 8-hour expiry, uses `ADMIN_SECRET` env var).
+  - `GET /api/auth` — checks if `admin_token` cookie exists and is 64 chars long. Returns 200 if valid, 401 otherwise. **No cryptographic replay check** — only length is verified.
+  - `DELETE /api/auth` — clears the cookie (logout).
+- **Login flow**: On mount, page calls `GET /api/auth`; if 200, skips modal and loads inquiries. Otherwise shows login form. On successful `POST /api/auth`, sets `authenticated = true` and fetches inquiries.
+- **Dashboard features**: Stats cards, filterable/searchable inquiry list, detail panel with status updates (`new`/`contacted`/`closed`), internal notes, delete, email/call quick actions.
+- **Fallback**: If `data/inquiries.json` is empty, hardcoded demo inquiries are shown.
+- **Security note**: `/api/inquiries/*` routes have **no auth checks** — they are publicly accessible. The auth is purely client-side gating on the `/admin` page.
+- **Required env vars**: `ADMIN_USERNAME`, `ADMIN_PASSWORD`, `ADMIN_SECRET` (optional, defaults to `"fallback-secret"`).
+
 ### Important Details
 
 - **Tailwind CSS v4** — uses `@tailwindcss/postcss` plugin, not the traditional `tailwind.config.js` setup.
