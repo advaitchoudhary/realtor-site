@@ -103,7 +103,16 @@ export default function LeadCaptureModal() {
 
   if (!open) return null;
 
-  const instagramUrl = siteConfig.social.instagram || "https://www.instagram.com/realtor.manojchaudhary/";
+  const INSTAGRAM_USERNAME = "realtor.manojchaudhary";
+  const instagramWebUrl = siteConfig.social.instagram || `https://www.instagram.com/${INSTAGRAM_USERNAME}/`;
+
+  function openInstagram() {
+    // Try to open the Instagram app via deep link; fall back to browser after 1.5s
+    window.location.href = `instagram://user?username=${INSTAGRAM_USERNAME}`;
+    setTimeout(() => {
+      window.open(instagramWebUrl, "_blank", "noopener,noreferrer");
+    }, 1500);
+  }
 
   return (
     <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
@@ -145,16 +154,14 @@ export default function LeadCaptureModal() {
               </p>
 
               {/* Instagram CTA */}
-              <a
-                href={instagramUrl}
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                onClick={openInstagram}
                 className="inline-flex items-center gap-2.5 px-5 py-3 rounded-2xl text-white text-sm font-semibold transition-opacity hover:opacity-90"
                 style={{ background: "linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045)" }}
               >
                 <Instagram size={18} />
                 Follow on Instagram for market updates
-              </a>
+              </button>
 
               <button
                 onClick={dismiss}
@@ -331,16 +338,15 @@ export default function LeadCaptureModal() {
               </button>
 
               {/* Instagram CTA */}
-              <a
-                href={instagramUrl}
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                type="button"
+                onClick={openInstagram}
                 className="flex items-center justify-center gap-2 py-2.5 rounded-xl text-white text-xs font-medium transition-opacity hover:opacity-90"
                 style={{ background: "linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045)" }}
               >
                 <Instagram size={15} />
                 Follow on Instagram for market tips &amp; new listings
-              </a>
+              </button>
 
               <p className="text-center text-[11px] text-gray-400">
                 Your information is private and will never be shared.
