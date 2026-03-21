@@ -57,7 +57,7 @@ export default function Navbar() {
     <>
       <header
         className={cn(
-          "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
+          "fixed top-0 left-0 right-0 z-50 transition-all duration-300 overflow-visible",
           navBg
         )}
       >
@@ -74,15 +74,29 @@ export default function Navbar() {
           </div>
         )}
 
-        <div className="flex items-center justify-between px-6 lg:px-10 h-16 lg:h-20">
+        <div className={cn("flex items-center justify-between px-6 lg:px-10 transition-all duration-300 overflow-visible", isHome && !scrolled ? "h-28 lg:h-32" : "h-16 lg:h-20")}>
           {/* Agent headshot */}
           <Link href="/" className="flex items-center gap-3">
-            <div className="rounded-full overflow-hidden shrink-0 border-2 shadow-sm" style={{ borderColor: "var(--accent)" }}>
-              <img
-                src={siteConfig.agent.photo}
-                alt={siteConfig.agent.name}
-                className="h-10 w-10 lg:h-12 lg:w-12 object-cover object-top"
-              />
+            {/* Placeholder keeps flex layout stable; image overflows below */}
+            <div
+              className={cn(
+                "relative shrink-0 transition-all duration-300",
+                isHome && !scrolled ? "h-24 w-36 lg:h-28 lg:w-44" : "h-10 w-10 lg:h-12 lg:w-12"
+              )}
+            >
+              <div
+                className={cn(
+                  "absolute top-0 left-0 rounded-full overflow-hidden border-2 shadow-sm transition-all duration-300",
+                  isHome && !scrolled ? "h-36 w-36 lg:h-44 lg:w-44" : "h-full w-full"
+                )}
+                style={{ borderColor: "var(--accent)" }}
+              >
+                <img
+                  src={siteConfig.agent.photo}
+                  alt={siteConfig.agent.name}
+                  className="h-full w-full object-cover object-top"
+                />
+              </div>
             </div>
             {/* Divider */}
             <div
@@ -91,10 +105,10 @@ export default function Navbar() {
             />
             {/* Name + credential */}
             <div className="hidden sm:flex flex-col leading-tight">
-              <span className={cn("text-sm font-bold tracking-tight", textColor)}>
+              <span className={cn("font-bold tracking-tight transition-all duration-300", textColor, isHome && !scrolled ? "text-xl lg:text-2xl" : "text-sm")}>
                 {siteConfig.agent.name}
               </span>
-              <span className="text-[10px] font-semibold tracking-widest uppercase" style={{ color: "var(--accent)" }}>
+              <span className={cn("font-semibold tracking-widest uppercase transition-all duration-300", isHome && !scrolled ? "text-xs" : "text-[10px]")} style={{ color: "var(--accent)" }}>
                 REALTOR® · {siteConfig.agent.license}
               </span>
             </div>
