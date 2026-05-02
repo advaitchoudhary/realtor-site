@@ -17,7 +17,7 @@ export default function TermsPage() {
         <div className="max-w-4xl mx-auto px-6 lg:px-10 relative">
           <p className="text-sm font-semibold uppercase tracking-widest mb-4" style={{ color: "var(--accent)" }}>Legal</p>
           <h1 className="text-4xl lg:text-5xl font-bold">Terms &amp; Conditions</h1>
-          <p className="text-white/70 mt-4 text-sm">Last updated: March 15, 2026</p>
+          <p className="text-white/70 mt-4 text-sm">Last updated: May 2, 2026</p>
         </div>
       </div>
 
