@@ -1,7 +1,10 @@
 import { siteConfig } from "@/lib/config";
 import Link from "next/link";
 
-export const metadata = { title: "Terms & Conditions" };
+export const metadata = {
+  title: "Terms & Conditions",
+  description: "Read the terms and conditions governing your use of our real estate website and services.",
+};
 
 export default function TermsPage() {
   return (

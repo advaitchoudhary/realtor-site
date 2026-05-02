@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { CheckCircle, Loader2 } from "lucide-react";
+import Link from "next/link";
 
 interface Props {
   compact?: boolean;
@@ -140,6 +141,11 @@ export default function ContactForm({ compact, defaultMessage, listingId, listin
         />
         {errors.message && <p className="text-xs text-red-500 mt-1">{errors.message}</p>}
       </div>
+
+      <p className="text-xs text-gray-400 leading-relaxed">
+        By submitting this form, you consent to us contacting you about our real estate services. Your information is handled in accordance with our{" "}
+        <Link href="/privacy" className="underline hover:text-[var(--primary)] transition-colors">Privacy Policy</Link>.
+      </p>
 
       <button
         type="submit"

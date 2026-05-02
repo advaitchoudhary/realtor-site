@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
         : `New ${type ?? "General"} Inquiry from ${name}${sourceLabel}`;
 
       await resend.emails.send({
-        from: "inquiries@manojchaudhary.ca",
+        from: process.env.RESEND_FROM_EMAIL ?? "onboarding@resend.dev", // set RESEND_FROM_EMAIL=inquiries@manojchaudhary.com once domain is verified in Resend
         to: process.env.NEXT_PUBLIC_AGENT_EMAIL ?? "realtormanoj9@gmail.com",
         replyTo: email,
         subject,
@@ -75,7 +75,7 @@ export async function POST(req: NextRequest) {
               </div>
             </div>
             <div style="padding: 16px 32px; background: #f9fafb; text-align: center;">
-              <p style="margin: 0; color: #9ca3af; font-size: 12px;">Sent from manojchaudhary.ca contact form</p>
+              <p style="margin: 0; color: #9ca3af; font-size: 12px;">Sent from manojchaudhary.com contact form</p>
             </div>
           </div>
         `,

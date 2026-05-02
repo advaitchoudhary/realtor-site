@@ -1,7 +1,10 @@
 import { siteConfig } from "@/lib/config";
 import Link from "next/link";
 
-export const metadata = { title: "Privacy Policy" };
+export const metadata = {
+  title: "Privacy Policy",
+  description: "Learn how we collect, use, and protect your personal information when you use our real estate website and services.",
+};
 
 export default function PrivacyPage() {
   return (
